@@ -1,0 +1,3 @@
+Hello world!
+I opened this exact file from the terminal
+P cool!
