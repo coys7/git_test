@@ -1,6 +1,6 @@
 ﻿# setup.ps1
-# One-time setup: sets PowerShell execution policy and creates the Windows
-# Startup folder shortcut so startup.ps1 runs automatically on every login.
+# One-time setup: sets PowerShell execution policy and registers a Task Scheduler
+# task that fires on login AND screen unlock (covers waking from sleep).
 #
 # Run this once from the repo directory after cloning:
 #   powershell -ExecutionPolicy Bypass -File .\setup.ps1
@@ -41,14 +41,17 @@ if ($chromeFound) {
 }
 
 # ---------------------------------------------------------------------------
-# 3. Check for VS Code (non-fatal warning)
+# 3. Check for Obsidian (non-fatal warning)
 # ---------------------------------------------------------------------------
-$codeFound = (Get-Command code -ErrorAction SilentlyContinue) -or
-             (Test-Path "$env:PROGRAMFILES\Microsoft VS Code\Code.exe")
-if ($codeFound) {
-    Write-Host "[OK] VS Code found." -ForegroundColor Green
+$obsidianFound = @(
+    "$env:LOCALAPPDATA\Programs\Obsidian\Obsidian.exe",
+    "$env:LOCALAPPDATA\Obsidian\Obsidian.exe",
+    "$env:PROGRAMFILES\Obsidian\Obsidian.exe"
+) | Where-Object { Test-Path $_ } | Select-Object -First 1
+if ($obsidianFound) {
+    Write-Host "[OK] Obsidian found: $obsidianFound" -ForegroundColor Green
 } else {
-    Write-Warning "VS Code not found. Markdown files will not open until VS Code is installed."
+    Write-Warning "Obsidian not found. It will be skipped until installed."
 }
 
 # ---------------------------------------------------------------------------
@@ -64,30 +67,67 @@ try {
 }
 
 # ---------------------------------------------------------------------------
-# 5. Create shortcut in the Windows Startup folder
+# 5. Remove old Startup folder shortcut if it exists (replaced by Task Scheduler)
 # ---------------------------------------------------------------------------
-$startupFolder = [System.Environment]::GetFolderPath('Startup')
-$shortcutPath  = Join-Path $startupFolder "MorningStartup.lnk"
-$vbsPath       = Join-Path $RepoDir "run_startup.vbs"
-
-try {
-    $WshShell = New-Object -ComObject WScript.Shell
-    $Shortcut = $WshShell.CreateShortcut($shortcutPath)
-    $Shortcut.TargetPath       = "wscript.exe"
-    $Shortcut.Arguments        = "`"$vbsPath`""
-    $Shortcut.WorkingDirectory = $RepoDir
-    $Shortcut.Description      = "Morning Startup Automation"
-    $Shortcut.WindowStyle      = 7  # 7 = minimized (suppresses any window flash)
-    $Shortcut.Save()
-} catch {
-    Write-Error "Failed to create shortcut: $_"
-    exit 1
+$oldShortcut = Join-Path ([System.Environment]::GetFolderPath('Startup')) "MorningStartup.lnk"
+if (Test-Path $oldShortcut) {
+    Remove-Item $oldShortcut -Force
+    Write-Host "[OK] Removed old Startup folder shortcut." -ForegroundColor Green
 }
 
-if (Test-Path $shortcutPath) {
-    Write-Host "[OK] Startup shortcut created: $shortcutPath" -ForegroundColor Green
-} else {
-    Write-Error "Shortcut was not created. Check permissions on: $startupFolder"
+# ---------------------------------------------------------------------------
+# 6. Register Task Scheduler task (fires on login AND screen unlock)
+# ---------------------------------------------------------------------------
+$taskName = "MorningStartupAgent"
+$vbsPath  = Join-Path $RepoDir "run_startup.vbs"
+$userId   = "$env:USERDOMAIN\$env:USERNAME"
+
+$taskXml = @"
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>Opens morning work apps on login or screen unlock (5am-12pm only).</Description>
+  </RegistrationInfo>
+  <Triggers>
+    <LogonTrigger>
+      <Enabled>true</Enabled>
+      <UserId>$userId</UserId>
+    </LogonTrigger>
+    <SessionStateChangeTrigger>
+      <Enabled>true</Enabled>
+      <StateChange>SessionUnlock</StateChange>
+      <UserId>$userId</UserId>
+    </SessionStateChangeTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <UserId>$userId</UserId>
+      <LogonType>InteractiveToken</LogonType>
+      <RunLevel>LeastPrivilege</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <ExecutionTimeLimit>PT2M</ExecutionTimeLimit>
+    <Priority>7</Priority>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>wscript.exe</Command>
+      <Arguments>"$vbsPath"</Arguments>
+      <WorkingDirectory>$RepoDir</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>
+"@
+
+try {
+    Register-ScheduledTask -TaskName $taskName -Xml $taskXml -Force -ErrorAction Stop | Out-Null
+    Write-Host "[OK] Task Scheduler task registered: $taskName" -ForegroundColor Green
+} catch {
+    Write-Error "Failed to register scheduled task: $_"
     exit 1
 }
 
@@ -95,11 +135,13 @@ if (Test-Path $shortcutPath) {
 # Done
 # ---------------------------------------------------------------------------
 Write-Host ""
-Write-Host "Setup complete! The startup agent will run automatically on next login." -ForegroundColor Cyan
+Write-Host "Setup complete! The startup agent will now run automatically when you" -ForegroundColor Cyan
+Write-Host "log in OR wake the laptop from sleep and enter your PIN." -ForegroundColor Cyan
+Write-Host "(Only fires between 5am and 12pm so mid-day unlocks are ignored.)" -ForegroundColor Gray
 Write-Host ""
-Write-Host "To test immediately (without logging out), run:" -ForegroundColor White
+Write-Host "To test immediately, run:" -ForegroundColor White
 Write-Host "  wscript.exe `"$vbsPath`"" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "To remove the startup agent later, delete:" -ForegroundColor White
-Write-Host "  $shortcutPath" -ForegroundColor Yellow
+Write-Host "To remove the startup agent later, run:" -ForegroundColor White
+Write-Host "  Unregister-ScheduledTask -TaskName MorningStartupAgent -Confirm:`$false" -ForegroundColor Yellow
 Write-Host ""

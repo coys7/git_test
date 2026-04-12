@@ -1,8 +1,12 @@
-﻿# startup.ps1
-# Morning startup automation. Launched silently at login via run_startup.vbs.
-# Opens Slack, Discord, Chrome (7 tabs), and VS Code with daily Markdown files.
+﻿﻿# startup.ps1
+# Morning startup automation. Triggered by Task Scheduler on login or screen unlock.
+# Opens Slack, Discord, Chrome (7 tabs), and Obsidian.
 
 $RepoDir = if ($PSScriptRoot) { $PSScriptRoot } else { $pwd.Path }
+
+# Only run during morning hours (5am - 12pm) so mid-day unlocks don't relaunch everything.
+$hour = (Get-Date).Hour
+if ($hour -lt 5 -or $hour -ge 12) { exit }
 
 # ---------------------------------------------------------------------------
 # Helper: Find Chrome executable
