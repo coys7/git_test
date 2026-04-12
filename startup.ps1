@@ -20,17 +20,17 @@ function Get-ChromePath {
 }
 
 # ---------------------------------------------------------------------------
-# Helper: Find Discord executable (versioned subfolder)
+# Helper: Find Discord Update.exe launcher
 # ---------------------------------------------------------------------------
-function Get-DiscordPath {
-    $discordBase = "$env:LOCALAPPDATA\Discord"
-    if (-not (Test-Path $discordBase)) { return $null }
-    $versionDir = Get-ChildItem -Path $discordBase -Directory -Filter "app-*" |
-                  Sort-Object Name -Descending |
-                  Select-Object -First 1
-    if (-not $versionDir) { return $null }
-    $exe = Join-Path $versionDir.FullName "Discord.exe"
-    if (Test-Path $exe) { return $exe } else { return $null }
+function Get-DiscordLauncher {
+    $candidates = @(
+        "$env:ProgramData\$env:USERNAME\Discord\Update.exe",
+        "$env:LOCALAPPDATA\Discord\Update.exe"
+    )
+    foreach ($p in $candidates) {
+        if (Test-Path $p) { return $p }
+    }
+    return $null
 }
 
 # ---------------------------------------------------------------------------
@@ -50,11 +50,11 @@ if ($slackPath) {
 # ---------------------------------------------------------------------------
 # 2. Launch Discord
 # ---------------------------------------------------------------------------
-$discordPath = Get-DiscordPath
-if ($discordPath) {
-    Start-Process $discordPath
+$discordLauncher = Get-DiscordLauncher
+if ($discordLauncher) {
+    Start-Process $discordLauncher -ArgumentList "--processStart", "Discord.exe"
 } else {
-    Write-Warning "Discord executable not found under $env:LOCALAPPDATA\Discord"
+    Write-Warning "Discord launcher not found. Checked ProgramData and LocalAppData."
 }
 
 # ---------------------------------------------------------------------------
@@ -82,6 +82,7 @@ if ($chromePath) {
 # 4. Open Obsidian
 # ---------------------------------------------------------------------------
 $obsidianCandidates = @(
+    "$env:LOCALAPPDATA\Programs\Obsidian\Obsidian.exe",
     "$env:LOCALAPPDATA\Obsidian\Obsidian.exe",
     "$env:PROGRAMFILES\Obsidian\Obsidian.exe"
 )
