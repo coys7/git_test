@@ -1,0 +1,98 @@
+# startup.ps1
+# Morning startup automation. Launched silently at login via run_startup.vbs.
+# Opens Slack, Discord, Chrome (7 tabs), and VS Code with daily Markdown files.
+
+$RepoDir = if ($PSScriptRoot) { $PSScriptRoot } else { $pwd.Path }
+
+# ---------------------------------------------------------------------------
+# Helper: Find Chrome executable
+# ---------------------------------------------------------------------------
+function Get-ChromePath {
+    $candidates = @(
+        "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe",
+        "${env:PROGRAMFILES(x86)}\Google\Chrome\Application\chrome.exe",
+        "$env:LOCALAPPDATA\Google\Chrome\Application\chrome.exe"
+    )
+    foreach ($p in $candidates) {
+        if (Test-Path $p) { return $p }
+    }
+    return $null
+}
+
+# ---------------------------------------------------------------------------
+# Helper: Find Discord executable (versioned subfolder)
+# ---------------------------------------------------------------------------
+function Get-DiscordPath {
+    $discordBase = "$env:LOCALAPPDATA\Discord"
+    if (-not (Test-Path $discordBase)) { return $null }
+    $versionDir = Get-ChildItem -Path $discordBase -Directory -Filter "app-*" |
+                  Sort-Object Name -Descending |
+                  Select-Object -First 1
+    if (-not $versionDir) { return $null }
+    $exe = Join-Path $versionDir.FullName "Discord.exe"
+    if (Test-Path $exe) { return $exe } else { return $null }
+}
+
+# ---------------------------------------------------------------------------
+# 1. Launch Slack
+# ---------------------------------------------------------------------------
+$slackCandidates = @(
+    "$env:LOCALAPPDATA\slack\slack.exe",
+    "$env:LOCALAPPDATA\Programs\slack\slack.exe"
+)
+$slackPath = $slackCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+if ($slackPath) {
+    Start-Process $slackPath
+} else {
+    Write-Warning "Slack not found. Checked: $($slackCandidates -join ', ')"
+}
+
+# ---------------------------------------------------------------------------
+# 2. Launch Discord
+# ---------------------------------------------------------------------------
+$discordPath = Get-DiscordPath
+if ($discordPath) {
+    Start-Process $discordPath
+} else {
+    Write-Warning "Discord executable not found under $env:LOCALAPPDATA\Discord"
+}
+
+# ---------------------------------------------------------------------------
+# 3. Open Chrome with 7 tabs in one window
+# ---------------------------------------------------------------------------
+$chromePath = Get-ChromePath
+if ($chromePath) {
+    $tabs = @(
+        "https://access.paylocity.com/",
+        "https://x.com/home",
+        "https://www.facebook.com/groups/TopstepCommunity/",
+        "https://app.sproutsocial.com/login",
+        "https://www.notion.so/dd6ff140ea214118a749edc4b7392086?v=5769269863344975b8ee4dec5fc8276d",
+        "https://docs.google.com/document/d/18EDky0v2gBvXwKeSaA-m6FnBCS840FMSqR5ufEKW5bw/edit?tab=t.2uv8x7eqvp1o",
+        "https://dashboard.topstep.com/dashboard/admin/users?filterMode=simple&filterValue="
+    )
+    # Array form of -ArgumentList correctly quotes each URL as a separate argument.
+    # --new-window forces a fresh window even if Chrome is already running.
+    Start-Process $chromePath -ArgumentList (@("--new-window") + $tabs)
+} else {
+    Write-Warning "Google Chrome not found. Skipping browser tabs."
+}
+
+# ---------------------------------------------------------------------------
+# 4. Open VS Code with daily task list and project ideas sheet
+# ---------------------------------------------------------------------------
+$codePath = $null
+$codeCmd = Get-Command code -ErrorAction SilentlyContinue
+if ($codeCmd) {
+    $codePath = $codeCmd.Source
+} elseif (Test-Path "$env:PROGRAMFILES\Microsoft VS Code\Code.exe") {
+    $codePath = "$env:PROGRAMFILES\Microsoft VS Code\Code.exe"
+}
+
+if ($codePath) {
+    $tasksFile = Join-Path $RepoDir "daily_tasks.md"
+    $ideasFile = Join-Path $RepoDir "project_ideas.md"
+    Start-Process $codePath -ArgumentList @($tasksFile, $ideasFile)
+} else {
+    Write-Warning "VS Code not found. Skipping Markdown files."
+}
