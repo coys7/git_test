@@ -79,20 +79,15 @@ if ($chromePath) {
 }
 
 # ---------------------------------------------------------------------------
-# 4. Open VS Code with daily task list and project ideas sheet
+# 4. Open Obsidian
 # ---------------------------------------------------------------------------
-$codePath = $null
-$codeCmd = Get-Command code -ErrorAction SilentlyContinue
-if ($codeCmd) {
-    $codePath = $codeCmd.Source
-} elseif (Test-Path "$env:PROGRAMFILES\Microsoft VS Code\Code.exe") {
-    $codePath = "$env:PROGRAMFILES\Microsoft VS Code\Code.exe"
-}
-
-if ($codePath) {
-    $tasksFile = Join-Path $RepoDir "daily_tasks.md"
-    $ideasFile = Join-Path $RepoDir "project_ideas.md"
-    Start-Process $codePath -ArgumentList @($tasksFile, $ideasFile)
+$obsidianCandidates = @(
+    "$env:LOCALAPPDATA\Obsidian\Obsidian.exe",
+    "$env:PROGRAMFILES\Obsidian\Obsidian.exe"
+)
+$obsidianPath = $obsidianCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+if ($obsidianPath) {
+    Start-Process $obsidianPath
 } else {
-    Write-Warning "VS Code not found. Skipping Markdown files."
+    Write-Warning "Obsidian not found. Checked: $($obsidianCandidates -join ', ')"
 }
