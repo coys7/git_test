@@ -1,4 +1,4 @@
-# startup.ps1
+﻿# startup.ps1
 # Morning startup automation. Launched silently at login via run_startup.vbs.
 # Opens Slack, Discord, Chrome (7 tabs), and VS Code with daily Markdown files.
 

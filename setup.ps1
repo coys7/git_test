@@ -1,4 +1,4 @@
-# setup.ps1
+﻿# setup.ps1
 # One-time setup: sets PowerShell execution policy and creates the Windows
 # Startup folder shortcut so startup.ps1 runs automatically on every login.
 #
@@ -9,7 +9,7 @@
 
 $RepoDir = $PSScriptRoot
 Write-Host ""
-Write-Host "Morning Startup Agent — Setup" -ForegroundColor Cyan
+Write-Host "Morning Startup Agent - Setup" -ForegroundColor Cyan
 Write-Host "Repo directory: $RepoDir" -ForegroundColor Gray
 Write-Host ""
 
