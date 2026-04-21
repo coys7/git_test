@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1600">
+  <title>FOMC Day — Topstep</title>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'Paralucent';
+      src: local('Paralucent Medium'), local('Paralucent-Medium'), local('Paralucent');
+      font-weight: 500;
+      font-style: normal;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 1600px;
+      height: 900px;
+      overflow: hidden;
+      background: #10161D;
+    }
+
+    /* ─── CANVAS ─────────────────────────────────────────── */
+    .graphic {
+      position: relative;
+      width: 1600px;
+      height: 900px;
+      overflow: hidden;
+      background: #10161D;
+      font-family: 'Work Sans', sans-serif;
+    }
+
+    /* ─── BACKGROUND LAYERS ──────────────────────────────── */
+
+    /* Base atmospheric gradient */
+    .bg-base {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 900px 600px at 75% 110%, rgba(170,114,58,0.28) 0%, transparent 70%),
+        radial-gradient(ellipse 1200px 800px at 65% 100%, rgba(27,41,69,0.55) 0%, transparent 80%),
+        linear-gradient(170deg, #10161D 0%, #0D1420 50%, #10161D 100%);
+    }
+
+    /* Subtle grid / energy lines */
+    .bg-lines {
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(90deg,
+          transparent,
+          transparent 49px,
+          rgba(105,182,210,0.025) 49px,
+          rgba(105,182,210,0.025) 50px
+        ),
+        repeating-linear-gradient(0deg,
+          transparent,
+          transparent 49px,
+          rgba(105,182,210,0.015) 49px,
+          rgba(105,182,210,0.015) 50px
+        );
+    }
+
+    /* Diagonal tension sweep */
+    .bg-sweep {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        118deg,
+        transparent 0%,
+        transparent 45%,
+        rgba(170,114,58,0.04) 48%,
+        rgba(210,156,92,0.06) 50%,
+        rgba(170,114,58,0.04) 52%,
+        transparent 55%,
+        transparent 100%
+      );
+    }
+
+    /* ─── BUILDING (right side) ──────────────────────────── */
+    .building-wrap {
+      position: absolute;
+      right: -60px;
+      bottom: 0;
+      width: 1050px;
+      height: 780px;
+      pointer-events: none;
+    }
+
+    /* ─── OVERLAYS ───────────────────────────────────────── */
+
+    /* Left-side content fade — ensures text pops over building */
+    .fade-left {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        90deg,
+        rgba(16,22,29,0.88) 0%,
+        rgba(16,22,29,0.70) 40%,
+        rgba(16,22,29,0.20) 65%,
+        transparent 100%
+      );
+    }
+
+    /* Top gradient for logo area */
+    .fade-top {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 180px;
+      background: linear-gradient(180deg, rgba(16,22,29,0.75) 0%, transparent 100%);
+    }
+
+    /* Edge vignette */
+    .vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 55%, rgba(10,14,20,0.65) 100%);
+    }
+
+    /* Bottom ground shadow */
+    .fade-bottom {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 80px;
+      background: linear-gradient(0deg, rgba(8,11,16,0.9) 0%, transparent 100%);
+    }
+
+    /* ─── LOGO ───────────────────────────────────────────── */
+    .logo-wrap {
+      position: absolute;
+      top: 44px;
+      left: 72px;
+      z-index: 20;
+    }
+
+    /* ─── CONTENT BLOCK ──────────────────────────────────── */
+    .content {
+      position: absolute;
+      left: 72px;
+      top: 0;
+      bottom: 0;
+      width: 860px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-bottom: 24px;
+      z-index: 10;
+    }
+
+    .eyebrow {
+      font-family: 'Work Sans', sans-serif;
+      font-weight: 300;
+      font-size: 15px;
+      letter-spacing: 0.38em;
+      color: #69B6D2;
+      text-transform: uppercase;
+      margin-bottom: 26px;
+    }
+
+    .headline {
+      font-family: 'Paralucent', 'Futura', 'Century Gothic', 'Work Sans', sans-serif;
+      font-weight: 500;
+      font-size: 158px;
+      line-height: 0.88;
+      letter-spacing: -0.025em;
+      text-transform: uppercase;
+      /* Trader Gold gradient — top-to-bottom per brand spec */
+      background: linear-gradient(180deg,
+        #AA723A 0%,
+        #D29C5C 35%,
+        #F2CE95 65%,
+        #C48743 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 28px;
+    }
+
+    .divider {
+      width: 64px;
+      height: 2px;
+      background: linear-gradient(90deg, #E2A355, #F6DCA8 60%, transparent);
+      margin-bottom: 30px;
+    }
+
+    .subheadline {
+      font-family: 'Work Sans', sans-serif;
+      font-weight: 800;
+      font-size: 50px;
+      letter-spacing: 0.06em;
+      color: #FFFFFF;
+      text-transform: uppercase;
+      margin-bottom: 40px;
+      line-height: 1;
+    }
+
+    .meta {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 36px;
+    }
+
+    .speaker-line {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .speaker-pip {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #E2A355;
+      flex-shrink: 0;
+    }
+
+    .speaker {
+      font-family: 'Work Sans', sans-serif;
+      font-weight: 300;
+      font-size: 19px;
+      letter-spacing: 0.22em;
+      color: #B9D4D4;
+      text-transform: uppercase;
+    }
+
+    .datetime {
+      font-family: 'Work Sans', sans-serif;
+      font-weight: 500;
+      font-size: 19px;
+      letter-spacing: 0.18em;
+      color: #EFEDE9;
+      text-transform: uppercase;
+      padding-left: 16px;
+    }
+
+    /* Live / watch badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      border: 1px solid rgba(226,163,85,0.45);
+      border-radius: 3px;
+      padding: 7px 18px 7px 14px;
+      width: fit-content;
+      background: rgba(226,163,85,0.08);
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #E2A355;
+      box-shadow: 0 0 6px 2px rgba(226,163,85,0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 6px 2px rgba(226,163,85,0.6); }
+      50%       { opacity: 0.7; box-shadow: 0 0 10px 4px rgba(226,163,85,0.3); }
+    }
+
+    .badge-text {
+      font-family: 'Work Sans', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.28em;
+      color: #E2A355;
+      text-transform: uppercase;
+    }
+
+    /* ─── TOPSTEP TEXT LOGO (placeholder) ───────────────── */
+    .text-logo {
+      font-family: 'Work Sans', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: 0.12em;
+      color: #FFFFFF;
+      text-transform: uppercase;
+    }
+    .text-logo span {
+      color: #E2A355;
+    }
+  </style>
+</head>
+<body>
+<div class="graphic">
+
+  <!-- ── BACKGROUND ── -->
+  <div class="bg-base"></div>
+  <div class="bg-lines"></div>
+  <div class="bg-sweep"></div>
+
+  <!-- ── FEDERAL RESERVE ECCLES BUILDING ── -->
+  <div class="building-wrap">
+    <svg xmlns="http://www.w3.org/2000/svg"
+         viewBox="0 0 1050 780"
+         width="1050" height="780"
+         aria-hidden="true">
+      <defs>
+        <!-- Warm atmospheric glow behind building -->
+        <radialGradient id="skyGlow" cx="50%" cy="98%" r="75%">
+          <stop offset="0%"   stop-color="#AA723A" stop-opacity="0.38"/>
+          <stop offset="40%"  stop-color="#1B2945" stop-opacity="0.20"/>
+          <stop offset="100%" stop-color="#10161D" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- Building face gradient (top dark → bottom darker) -->
+        <linearGradient id="buildingBody" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#111924"/>
+          <stop offset="100%" stop-color="#090D13"/>
+        </linearGradient>
+
+        <!-- Stepped base gradient -->
+        <linearGradient id="stepsGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#141E2B"/>
+          <stop offset="100%" stop-color="#0A0E15"/>
+        </linearGradient>
+
+        <!-- Gold cornice accent -->
+        <linearGradient id="goldAccent" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"   stop-color="#AA723A" stop-opacity="0"/>
+          <stop offset="20%"  stop-color="#D29C5C" stop-opacity="0.55"/>
+          <stop offset="50%"  stop-color="#F2CE95" stop-opacity="0.7"/>
+          <stop offset="80%"  stop-color="#D29C5C" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="#AA723A" stop-opacity="0"/>
+        </linearGradient>
+
+        <!-- Window glow — faint warm light from inside -->
+        <radialGradient id="winGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#2A3A52" stop-opacity="1"/>
+          <stop offset="100%" stop-color="#1A2535" stop-opacity="1"/>
+        </radialGradient>
+
+        <!-- Soft mask for building bottom fade -->
+        <linearGradient id="buildingFade" x1="0" y1="0.7" x2="0" y2="1">
+          <stop offset="0%"   stop-color="white" stop-opacity="1"/>
+          <stop offset="100%" stop-color="white" stop-opacity="0"/>
+        </linearGradient>
+        <mask id="buildMask">
+          <rect x="0" y="0" width="1050" height="780" fill="url(#buildingFade)"/>
+        </mask>
+      </defs>
+
+      <!-- Atmospheric glow — fills whole viewport -->
+      <rect x="0" y="0" width="1050" height="780" fill="url(#skyGlow)"/>
+
+      <!-- Crepuscular light rays from the building horizon -->
+      <g opacity="0.09" mask="url(#buildMask)">
+        <line x1="525" y1="680" x2="80"  y2="0"   stroke="#D29C5C" stroke-width="90"/>
+        <line x1="525" y1="680" x2="200" y2="0"   stroke="#D29C5C" stroke-width="60"/>
+        <line x1="525" y1="680" x2="340" y2="0"   stroke="#D29C5C" stroke-width="45"/>
+        <line x1="525" y1="680" x2="460" y2="0"   stroke="#D29C5C" stroke-width="70"/>
+        <line x1="525" y1="680" x2="525" y2="0"   stroke="#F2CE95" stroke-width="100"/>
+        <line x1="525" y1="680" x2="590" y2="0"   stroke="#D29C5C" stroke-width="70"/>
+        <line x1="525" y1="680" x2="710" y2="0"   stroke="#D29C5C" stroke-width="45"/>
+        <line x1="525" y1="680" x2="850" y2="0"   stroke="#D29C5C" stroke-width="60"/>
+        <line x1="525" y1="680" x2="970" y2="0"   stroke="#D29C5C" stroke-width="90"/>
+      </g>
+
+      <!-- ══════════════════════════════════════════
+           ECCLES BUILDING — Simplified Neoclassical
+           ══════════════════════════════════════════
+
+           Total facade: x 55 → 995 (940px wide)
+           Ground line: y 700
+           Roof top:    y 135
+
+           Structure from top to bottom:
+             Roof parapet ........... y 135–155
+             Attic story ............ y 155–280
+             Main entablature ....... y 280–350
+             Colonnade .............. y 350–490 (Ionic columns)
+             Stylobate (col base) ... y 490–510
+             High podium ............ y 510–630
+             Steps (3 levels) ....... y 630–700
+      ═══════════════════════════════════════════ -->
+
+      <!-- HIGH PODIUM -->
+      <rect x="55"  y="510" width="940" height="120" fill="url(#buildingBody)"/>
+
+      <!-- STYLOBATE — raised column platform -->
+      <rect x="55"  y="490" width="940" height="22"  fill="#0F1720"/>
+
+      <!-- COLUMNS — 22 Ionic columns, ~30px wide, spaced ~42px c-t-c -->
+      <!-- x start = 68, slot width = 940/22 ≈ 42.7, col width = 20 -->
+      <g fill="#0C1319">
+        <rect x="68"  y="355" width="20" height="137"/>
+        <rect x="111" y="355" width="20" height="137"/>
+        <rect x="154" y="355" width="20" height="137"/>
+        <rect x="197" y="355" width="20" height="137"/>
+        <rect x="240" y="355" width="20" height="137"/>
+        <rect x="283" y="355" width="20" height="137"/>
+        <rect x="326" y="355" width="20" height="137"/>
+        <rect x="369" y="355" width="20" height="137"/>
+        <rect x="412" y="355" width="20" height="137"/>
+        <rect x="455" y="355" width="20" height="137"/>
+        <rect x="498" y="355" width="20" height="137"/>
+        <rect x="541" y="355" width="20" height="137"/>
+        <rect x="584" y="355" width="20" height="137"/>
+        <rect x="627" y="355" width="20" height="137"/>
+        <rect x="670" y="355" width="20" height="137"/>
+        <rect x="713" y="355" width="20" height="137"/>
+        <rect x="756" y="355" width="20" height="137"/>
+        <rect x="799" y="355" width="20" height="137"/>
+        <rect x="842" y="355" width="20" height="137"/>
+        <rect x="885" y="355" width="20" height="137"/>
+        <rect x="928" y="355" width="20" height="137"/>
+        <rect x="971" y="355" width="20" height="137"/>
+      </g>
+
+      <!-- Column capitals (slight widening at top) -->
+      <g fill="#0B1218">
+        <rect x="64"  y="350" width="28" height="8"/>
+        <rect x="107" y="350" width="28" height="8"/>
+        <rect x="150" y="350" width="28" height="8"/>
+        <rect x="193" y="350" width="28" height="8"/>
+        <rect x="236" y="350" width="28" height="8"/>
+        <rect x="279" y="350" width="28" height="8"/>
+        <rect x="322" y="350" width="28" height="8"/>
+        <rect x="365" y="350" width="28" height="8"/>
+        <rect x="408" y="350" width="28" height="8"/>
+        <rect x="451" y="350" width="28" height="8"/>
+        <rect x="494" y="350" width="28" height="8"/>
+        <rect x="537" y="350" width="28" height="8"/>
+        <rect x="580" y="350" width="28" height="8"/>
+        <rect x="623" y="350" width="28" height="8"/>
+        <rect x="666" y="350" width="28" height="8"/>
+        <rect x="709" y="350" width="28" height="8"/>
+        <rect x="752" y="350" width="28" height="8"/>
+        <rect x="795" y="350" width="28" height="8"/>
+        <rect x="838" y="350" width="28" height="8"/>
+        <rect x="881" y="350" width="28" height="8"/>
+        <rect x="924" y="350" width="28" height="8"/>
+        <rect x="967" y="350" width="28" height="8"/>
+      </g>
+
+      <!-- MAIN ENTABLATURE (frieze + architrave) -->
+      <rect x="48"  y="280" width="954" height="72" fill="#0F1820"/>
+      <!-- Thin shadow line under entablature -->
+      <rect x="48"  y="348" width="954" height="4"  fill="#080C12"/>
+      <!-- Gold cornice accent on top of entablature -->
+      <rect x="48"  y="280" width="954" height="2"  fill="url(#goldAccent)"/>
+
+      <!-- ATTIC STORY (main building body) -->
+      <rect x="48"  y="155" width="954" height="127" fill="url(#buildingBody)"/>
+
+      <!-- Attic windows — 3 rows, 12 per row -->
+      <!-- Row A: y=163, h=30 -->
+      <g fill="url(#winGlow)">
+        <!-- 12 windows, spacing ~78px from x=78 -->
+        <rect x="78"  y="163" width="26" height="30" rx="1"/>
+        <rect x="156" y="163" width="26" height="30" rx="1"/>
+        <rect x="234" y="163" width="26" height="30" rx="1"/>
+        <rect x="312" y="163" width="26" height="30" rx="1"/>
+        <rect x="390" y="163" width="26" height="30" rx="1"/>
+        <rect x="468" y="163" width="26" height="30" rx="1"/>
+        <rect x="546" y="163" width="26" height="30" rx="1"/>
+        <rect x="624" y="163" width="26" height="30" rx="1"/>
+        <rect x="702" y="163" width="26" height="30" rx="1"/>
+        <rect x="780" y="163" width="26" height="30" rx="1"/>
+        <rect x="858" y="163" width="26" height="30" rx="1"/>
+        <rect x="936" y="163" width="26" height="30" rx="1"/>
+      </g>
+      <!-- Row B: y=205 -->
+      <g fill="url(#winGlow)" opacity="0.75">
+        <rect x="78"  y="207" width="26" height="30" rx="1"/>
+        <rect x="156" y="207" width="26" height="30" rx="1"/>
+        <rect x="234" y="207" width="26" height="30" rx="1"/>
+        <rect x="312" y="207" width="26" height="30" rx="1"/>
+        <rect x="390" y="207" width="26" height="30" rx="1"/>
+        <rect x="468" y="207" width="26" height="30" rx="1"/>
+        <rect x="546" y="207" width="26" height="30" rx="1"/>
+        <rect x="624" y="207" width="26" height="30" rx="1"/>
+        <rect x="702" y="207" width="26" height="30" rx="1"/>
+        <rect x="780" y="207" width="26" height="30" rx="1"/>
+        <rect x="858" y="207" width="26" height="30" rx="1"/>
+        <rect x="936" y="207" width="26" height="30" rx="1"/>
+      </g>
+      <!-- Row C: y=247 -->
+      <g fill="url(#winGlow)" opacity="0.55">
+        <rect x="78"  y="249" width="26" height="28" rx="1"/>
+        <rect x="156" y="249" width="26" height="28" rx="1"/>
+        <rect x="234" y="249" width="26" height="28" rx="1"/>
+        <rect x="312" y="249" width="26" height="28" rx="1"/>
+        <rect x="390" y="249" width="26" height="28" rx="1"/>
+        <rect x="468" y="249" width="26" height="28" rx="1"/>
+        <rect x="546" y="249" width="26" height="28" rx="1"/>
+        <rect x="624" y="249" width="26" height="28" rx="1"/>
+        <rect x="702" y="249" width="26" height="28" rx="1"/>
+        <rect x="780" y="249" width="26" height="28" rx="1"/>
+        <rect x="858" y="249" width="26" height="28" rx="1"/>
+        <rect x="936" y="249" width="26" height="28" rx="1"/>
+      </g>
+
+      <!-- ROOF PARAPET -->
+      <rect x="40"  y="135" width="970" height="22" fill="#0C1420"/>
+      <!-- Parapet top cap -->
+      <rect x="36"  y="126" width="978" height="11" fill="#09111C"/>
+      <!-- Gold accent on parapet cap -->
+      <rect x="36"  y="126" width="978" height="1.5" fill="url(#goldAccent)" opacity="0.5"/>
+
+      <!-- ── STEPS ── (3 broad steps leading to podium) -->
+      <rect x="35"  y="630" width="980" height="24" fill="url(#stepsGrad)"/>
+      <rect x="25"  y="654" width="1000" height="22" fill="#0D1620"/>
+      <rect x="10"  y="676" width="1030" height="22" fill="#0B1319"/>
+
+      <!-- Ground shadow -->
+      <rect x="0"   y="698" width="1050" height="82" fill="#080C11"/>
+
+      <!-- Warm haze at ground level -->
+      <rect x="0"   y="560" width="1050" height="220" fill="url(#skyGlow)" opacity="0.45"/>
+
+    </svg>
+  </div>
+
+  <!-- ── OVERLAYS ── -->
+  <div class="fade-left"></div>
+  <div class="fade-top"></div>
+  <div class="fade-bottom"></div>
+  <div class="vignette"></div>
+
+  <!-- ── LOGO (top-left) ── -->
+  <div class="logo-wrap">
+    <!--
+      REPLACE the svg below with your actual logo.svg contents.
+      Current size target: ~140px wide, auto height.
+      Suggested: set width="140" height="auto" on your root <svg> element.
+    -->
+    <svg width="160" height="36" viewBox="0 0 160 36" xmlns="http://www.w3.org/2000/svg">
+      <!-- Placeholder wordmark — swap with real Topstep SVG -->
+      <text
+        x="0" y="28"
+        font-family="'Work Sans', sans-serif"
+        font-weight="700"
+        font-size="26"
+        letter-spacing="2"
+        fill="#FFFFFF">TOP<tspan fill="#E2A355">STEP</tspan></text>
+    </svg>
+  </div>
+
+  <!-- ── MAIN CONTENT ── -->
+  <div class="content">
+
+    <p class="eyebrow">Topstep Presents</p>
+
+    <h1 class="headline">FOMC<br>DAY</h1>
+
+    <div class="divider"></div>
+
+    <h2 class="subheadline">The Fed&nbsp;Decides</h2>
+
+    <div class="meta">
+      <div class="speaker-line">
+        <span class="speaker-pip"></span>
+        <span class="speaker">Jerome Powell &nbsp;·&nbsp; Federal Reserve Chair</span>
+      </div>
+      <p class="datetime">&nbsp;&nbsp;&nbsp;April 29, 2026 &nbsp;·&nbsp; 1:00&nbsp;PM&nbsp;CST</p>
+    </div>
+
+    <div class="badge">
+      <div class="badge-dot"></div>
+      <span class="badge-text">Watch Live on Topstep</span>
+    </div>
+
+  </div>
+
+</div>
+</body>
+</html>
