@@ -36,14 +36,14 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(ellipse 960px 680px at 68% 80%,
-          rgba(175,95,25,0.65) 0%,
-          rgba(135,70,15,0.36) 32%,
-          rgba(27,41,69,0.16) 62%,
-          transparent 82%
+        radial-gradient(ellipse 900px 600px at 68% 72%,
+          rgba(175,95,25,0.62) 0%,
+          rgba(135,70,15,0.34) 32%,
+          rgba(27,41,69,0.14) 60%,
+          transparent 80%
         ),
-        radial-gradient(ellipse 580px 360px at 68% 100%,
-          rgba(215,135,45,0.50) 0%,
+        radial-gradient(ellipse 540px 320px at 68% 96%,
+          rgba(215,135,45,0.46) 0%,
           transparent 55%
         ),
         linear-gradient(175deg, #0A0F18 0%, #0D1522 55%, #080D14 100%);
@@ -55,33 +55,37 @@
       background-image:
         repeating-linear-gradient(90deg,
           transparent 0px, transparent 49px,
-          rgba(105,182,210,0.015) 49px, rgba(105,182,210,0.015) 50px
+          rgba(105,182,210,0.014) 49px, rgba(105,182,210,0.014) 50px
         ),
         repeating-linear-gradient(0deg,
           transparent 0px, transparent 49px,
-          rgba(105,182,210,0.010) 49px, rgba(105,182,210,0.010) 50px
+          rgba(105,182,210,0.009) 49px, rgba(105,182,210,0.009) 50px
         );
     }
 
     /* ── BUILDING ──────────────────────────────────────── */
     .building-wrap {
       position: absolute;
-      right: 20px;
-      bottom: 0;
-      width: 880px;
-      height: 700px;
+      right: 30px;
+      /* sit building top at y≈220, only colonnade + attic show above band */
+      bottom: 270px;
+      width: 820px;
+      height: 640px;
       pointer-events: none;
+      opacity: 0.92;
     }
 
-    /* ── OVERLAYS ──────────────────────────────────────── */
+    /* ── LEFT FADE ─────────────────────────────────────── */
     .fade-left {
       position: absolute;
       inset: 0;
+      /* Only shield the upper left — bottom band handles its own darkness */
+      bottom: 270px;
       background: linear-gradient(
         90deg,
         rgba(8,13,20,0.95) 0%,
-        rgba(8,13,20,0.84) 32%,
-        rgba(8,13,20,0.36) 54%,
+        rgba(8,13,20,0.82) 32%,
+        rgba(8,13,20,0.32) 54%,
         transparent 68%
       );
     }
@@ -89,32 +93,113 @@
     .fade-top {
       position: absolute;
       top: 0; left: 0; right: 0;
-      height: 180px;
-      background: linear-gradient(180deg, rgba(8,13,20,0.82) 0%, transparent 100%);
+      height: 160px;
+      background: linear-gradient(180deg, rgba(8,13,20,0.80) 0%, transparent 100%);
     }
 
     .vignette {
       position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse 110% 110% at 50% 50%,
-        transparent 46%, rgba(5,8,13,0.70) 100%);
+      /* Only apply vignette to upper section */
+      top: 0; left: 0; right: 0;
+      bottom: 270px;
+      background: radial-gradient(ellipse 110% 120% at 50% 50%,
+        transparent 44%, rgba(5,8,13,0.65) 100%);
     }
 
-    .fade-bottom {
+    /* ── BOTTOM PANEL ──────────────────────────────────── */
+    .bottom-panel {
       position: absolute;
       bottom: 0; left: 0; right: 0;
-      height: 90px;
-      background: linear-gradient(0deg, rgba(5,8,12,0.96) 0%, transparent 100%);
+      height: 270px;
+      z-index: 15;
+      /* Solid-ish dark background so text is always readable */
+      background: linear-gradient(0deg,
+        rgba(8,13,20,0.99)  0%,
+        rgba(8,13,20,0.97) 60%,
+        rgba(8,13,20,0.88) 82%,
+        rgba(8,13,20,0.60) 100%
+      );
+      border-top: 1px solid rgba(226,163,85,0.30);
+      padding: 28px 70px 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    .panel-label {
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 0.42em;
+      color: #69B6D2;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .bullets-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 52px;
+    }
+
+    .bullet-col {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    /* thin vertical dividers between columns */
+    .bullet-col + .bullet-col {
+      border-left: 1px solid rgba(226,163,85,0.18);
+      padding-left: 52px;
+      margin-left: -52px;
+    }
+
+    .col-header {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .col-pip {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #E2A355;
+      flex-shrink: 0;
+    }
+
+    .col-title {
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.28em;
+      color: #E2A355;
+      text-transform: uppercase;
+    }
+
+    .col-text {
+      font-weight: 300;
+      font-size: 14px;
+      line-height: 1.62;
+      letter-spacing: 0.02em;
+      color: rgba(239,237,233,0.78);
+      padding-left: 14px;
     }
 
     /* ── LOGO ──────────────────────────────────────────── */
     .logo-wrap {
       position: absolute;
-      top: 44px;
+      top: 42px;
       left: 70px;
       z-index: 20;
     }
 
+    /*
+      To use the real logo:
+        1. Export your EPS as a PNG at 2x (e.g. 280×70px) or as SVG.
+        2. Replace the <span> below with:
+             <img src="topstep-white.png" height="28" alt="Topstep">
+           or paste your SVG markup directly.
+    */
     .logo-text {
       font-family: 'Work Sans', sans-serif;
       font-weight: 900;
@@ -130,21 +215,24 @@
     .content {
       position: absolute;
       left: 70px;
-      top: 0; bottom: 0;
-      width: 620px;
+      top: 0;
+      /* Stop well above the bottom panel */
+      bottom: 270px;
+      width: 630px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      padding-top: 20px;
-      padding-bottom: 20px;
+      justify-content: flex-start;
+      /* padding-top clears the logo (42 + 21px height + 26px gap = 89) */
+      padding-top: 89px;
+      padding-bottom: 24px;
       z-index: 10;
     }
 
     .headline {
       font-family: 'Paralucent', 'Futura', 'Century Gothic', 'Work Sans', sans-serif;
       font-weight: 500;
-      font-size: 162px;
-      line-height: 0.86;
+      font-size: 152px;
+      line-height: 0.87;
       letter-spacing: -0.03em;
       text-transform: uppercase;
       background: linear-gradient(180deg,
@@ -156,32 +244,31 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      margin-bottom: 26px;
+      margin-bottom: 24px;
     }
 
     .divider {
-      width: 52px;
+      width: 50px;
       height: 2px;
       background: linear-gradient(90deg, #E2A355, #F6DCA8 55%, transparent);
-      margin-bottom: 22px;
+      margin-bottom: 20px;
     }
 
     .subheadline {
       font-weight: 800;
-      font-size: 48px;
+      font-size: 46px;
       letter-spacing: 0.07em;
       color: #FFFFFF;
       text-transform: uppercase;
-      margin-bottom: 28px;
+      margin-bottom: 26px;
       line-height: 1;
     }
 
-    /* Schedule */
     .schedule {
       display: flex;
       flex-direction: column;
-      gap: 9px;
-      margin-bottom: 30px;
+      gap: 8px;
+      margin-bottom: 28px;
     }
 
     .schedule-row {
@@ -200,7 +287,7 @@
 
     .schedule-text {
       font-weight: 300;
-      font-size: 16px;
+      font-size: 15px;
       letter-spacing: 0.20em;
       color: #B9D4D4;
       text-transform: uppercase;
@@ -208,21 +295,20 @@
 
     .schedule-date {
       font-weight: 500;
-      font-size: 16px;
+      font-size: 15px;
       letter-spacing: 0.20em;
       color: #EFEDE9;
       text-transform: uppercase;
       padding-left: 14px;
     }
 
-    /* Badge — larger */
     .badge {
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      border: 1px solid rgba(226,163,85,0.50);
+      border: 1px solid rgba(226,163,85,0.52);
       border-radius: 3px;
-      padding: 9px 22px 9px 16px;
+      padding: 10px 22px 10px 16px;
       width: fit-content;
       background: rgba(226,163,85,0.10);
     }
@@ -232,65 +318,16 @@
       height: 8px;
       border-radius: 50%;
       background: #E2A355;
-      box-shadow: 0 0 8px 2px rgba(226,163,85,0.60);
+      box-shadow: 0 0 8px 3px rgba(226,163,85,0.55);
       flex-shrink: 0;
     }
 
     .badge-text {
       font-weight: 600;
       font-size: 14px;
-      letter-spacing: 0.26em;
+      letter-spacing: 0.24em;
       color: #E2A355;
       text-transform: uppercase;
-    }
-
-    /* ── RIGHT BULLETS PANEL ───────────────────────────── */
-    .bullets-panel {
-      position: absolute;
-      right: 52px;
-      bottom: 52px;
-      width: 650px;
-      z-index: 12;
-      border-top: 1px solid rgba(226,163,85,0.28);
-      padding-top: 20px;
-    }
-
-    .bullets-label {
-      font-weight: 600;
-      font-size: 13px;
-      letter-spacing: 0.36em;
-      color: #69B6D2;
-      text-transform: uppercase;
-      margin-bottom: 16px;
-    }
-
-    .bullet-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 11px;
-      margin-bottom: 10px;
-    }
-
-    .bullet-item:last-child {
-      margin-bottom: 0;
-    }
-
-    .bullet-dot {
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: #E2A355;
-      flex-shrink: 0;
-      margin-top: 6px;
-    }
-
-    .bullet-text {
-      font-weight: 300;
-      font-size: 13px;
-      line-height: 1.58;
-      letter-spacing: 0.03em;
-      color: rgba(185,212,212,0.82);
-      text-shadow: 0 1px 10px rgba(8,13,20,0.9);
     }
   </style>
 </head>
@@ -301,36 +338,31 @@
   <div class="bg-base"></div>
   <div class="bg-lines"></div>
 
-  <!-- FEDERAL RESERVE ECCLES BUILDING -->
+  <!-- FEDERAL RESERVE ECCLES BUILDING (upper section only) -->
   <div class="building-wrap">
     <svg xmlns="http://www.w3.org/2000/svg"
-         viewBox="0 0 880 700"
-         width="880" height="700"
+         viewBox="0 0 820 640"
+         width="820" height="640"
          aria-hidden="true">
       <defs>
-        <radialGradient id="skyGlow" cx="50%" cy="57%" r="58%">
+        <!-- Sky glow — colonnade is at y≈315–455 (≈54% of 640) -->
+        <radialGradient id="skyGlow" cx="50%" cy="54%" r="56%">
           <stop offset="0%"   stop-color="#CC8828" stop-opacity="0.95"/>
-          <stop offset="20%"  stop-color="#B07020" stop-opacity="0.72"/>
-          <stop offset="46%"  stop-color="#6A3E10" stop-opacity="0.42"/>
-          <stop offset="75%"  stop-color="#1B2945" stop-opacity="0.16"/>
+          <stop offset="22%"  stop-color="#B07020" stop-opacity="0.70"/>
+          <stop offset="48%"  stop-color="#6A3E10" stop-opacity="0.40"/>
+          <stop offset="78%"  stop-color="#1B2945" stop-opacity="0.14"/>
           <stop offset="100%" stop-color="#080D14" stop-opacity="0"/>
         </radialGradient>
 
-        <radialGradient id="horizonBurst" cx="50%" cy="94%" r="48%">
-          <stop offset="0%"   stop-color="#DC9438" stop-opacity="0.90"/>
-          <stop offset="28%"  stop-color="#AA6A20" stop-opacity="0.52"/>
-          <stop offset="70%"  stop-color="#6A3E10" stop-opacity="0.18"/>
+        <radialGradient id="horizonBurst" cx="50%" cy="92%" r="46%">
+          <stop offset="0%"   stop-color="#DC9438" stop-opacity="0.88"/>
+          <stop offset="30%"  stop-color="#AA6A20" stop-opacity="0.50"/>
           <stop offset="100%" stop-color="#080D14" stop-opacity="0"/>
         </radialGradient>
 
         <linearGradient id="buildBody" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%"   stop-color="#09101C"/>
           <stop offset="100%" stop-color="#05080D"/>
-        </linearGradient>
-
-        <linearGradient id="stepsGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stop-color="#0E1828"/>
-          <stop offset="100%" stop-color="#06090E"/>
         </linearGradient>
 
         <linearGradient id="goldLine" x1="0" y1="0" x2="1" y2="0">
@@ -348,173 +380,189 @@
 
         <linearGradient id="rayFade" x1="0" y1="1" x2="0" y2="0">
           <stop offset="0%"   stop-color="white" stop-opacity="0"/>
-          <stop offset="18%"  stop-color="white" stop-opacity="1"/>
-          <stop offset="88%"  stop-color="white" stop-opacity="0.35"/>
+          <stop offset="22%"  stop-color="white" stop-opacity="1"/>
+          <stop offset="85%"  stop-color="white" stop-opacity="0.30"/>
           <stop offset="100%" stop-color="white" stop-opacity="0"/>
         </linearGradient>
         <mask id="rayMask">
-          <rect width="880" height="700" fill="url(#rayFade)"/>
+          <rect width="820" height="640" fill="url(#rayFade)"/>
         </mask>
       </defs>
 
-      <rect x="0" y="0" width="880" height="700" fill="url(#skyGlow)"/>
-      <rect x="0" y="0" width="880" height="700" fill="url(#horizonBurst)"/>
+      <rect x="0" y="0" width="820" height="640" fill="url(#skyGlow)"/>
+      <rect x="0" y="0" width="820" height="640" fill="url(#horizonBurst)"/>
 
-      <g mask="url(#rayMask)" opacity="0.16">
-        <line x1="440" y1="640" x2="30"  y2="0"   stroke="#DC9438" stroke-width="85"/>
-        <line x1="440" y1="640" x2="130" y2="0"   stroke="#CC8428" stroke-width="60"/>
-        <line x1="440" y1="640" x2="250" y2="0"   stroke="#BC7418" stroke-width="42"/>
-        <line x1="440" y1="640" x2="360" y2="0"   stroke="#DC9438" stroke-width="70"/>
-        <line x1="440" y1="640" x2="440" y2="0"   stroke="#F0B850" stroke-width="105"/>
-        <line x1="440" y1="640" x2="520" y2="0"   stroke="#DC9438" stroke-width="70"/>
-        <line x1="440" y1="640" x2="630" y2="0"   stroke="#BC7418" stroke-width="42"/>
-        <line x1="440" y1="640" x2="750" y2="0"   stroke="#CC8428" stroke-width="60"/>
-        <line x1="440" y1="640" x2="850" y2="0"   stroke="#DC9438" stroke-width="85"/>
+      <!-- Rays -->
+      <g mask="url(#rayMask)" opacity="0.15">
+        <line x1="410" y1="590" x2="20"  y2="0"   stroke="#DC9438" stroke-width="80"/>
+        <line x1="410" y1="590" x2="110" y2="0"   stroke="#CC8428" stroke-width="55"/>
+        <line x1="410" y1="590" x2="220" y2="0"   stroke="#BC7418" stroke-width="38"/>
+        <line x1="410" y1="590" x2="330" y2="0"   stroke="#DC9438" stroke-width="65"/>
+        <line x1="410" y1="590" x2="410" y2="0"   stroke="#F0B850" stroke-width="98"/>
+        <line x1="410" y1="590" x2="490" y2="0"   stroke="#DC9438" stroke-width="65"/>
+        <line x1="410" y1="590" x2="600" y2="0"   stroke="#BC7418" stroke-width="38"/>
+        <line x1="410" y1="590" x2="710" y2="0"   stroke="#CC8428" stroke-width="55"/>
+        <line x1="410" y1="590" x2="800" y2="0"   stroke="#DC9438" stroke-width="80"/>
       </g>
 
-      <!-- PODIUM -->
-      <rect x="35"  y="518" width="810" height="82"  fill="url(#buildBody)"/>
-      <!-- STYLOBATE -->
-      <rect x="35"  y="498" width="810" height="22"  fill="#0B1420"/>
+      <!--
+        ECCLES BUILDING — 820 × 640 viewport
+        Facade: x 30 → 790  (760px wide)
 
-      <!-- COLONNADE — 14 columns, 20px wide, 61px pitch -->
+        Parapet cap     y  68 –  82
+        Parapet         y  82 – 108
+        Attic story     y 108 – 258
+        Entablature     y 258 – 318
+        Colonnade       y 318 – 458
+        Stylobate       y 458 – 476
+        High podium     y 476 – 560
+        Steps × 3       y 560 – 610
+        Ground          y 610 +
+
+        14 columns · 20px wide · 57px pitch
+        x: 30, 87, 144, 201, 258, 315, 372, 429,
+           486, 543, 600, 657, 714, 771
+      -->
+
+      <!-- PODIUM -->
+      <rect x="30"  y="476" width="760" height="84"  fill="url(#buildBody)"/>
+      <!-- STYLOBATE -->
+      <rect x="30"  y="458" width="760" height="20"  fill="#0B1420"/>
+
+      <!-- COLONNADE — 14 columns, 20px wide, 57px pitch -->
       <g fill="#05080C">
-        <rect x="35"  y="348" width="20" height="152"/>
-        <rect x="96"  y="348" width="20" height="152"/>
-        <rect x="157" y="348" width="20" height="152"/>
-        <rect x="218" y="348" width="20" height="152"/>
-        <rect x="279" y="348" width="20" height="152"/>
-        <rect x="340" y="348" width="20" height="152"/>
-        <rect x="401" y="348" width="20" height="152"/>
-        <rect x="462" y="348" width="20" height="152"/>
-        <rect x="523" y="348" width="20" height="152"/>
-        <rect x="584" y="348" width="20" height="152"/>
-        <rect x="645" y="348" width="20" height="152"/>
-        <rect x="706" y="348" width="20" height="152"/>
-        <rect x="767" y="348" width="20" height="152"/>
-        <rect x="828" y="348" width="20" height="152"/>
+        <rect x="30"  y="318" width="20" height="142"/>
+        <rect x="87"  y="318" width="20" height="142"/>
+        <rect x="144" y="318" width="20" height="142"/>
+        <rect x="201" y="318" width="20" height="142"/>
+        <rect x="258" y="318" width="20" height="142"/>
+        <rect x="315" y="318" width="20" height="142"/>
+        <rect x="372" y="318" width="20" height="142"/>
+        <rect x="429" y="318" width="20" height="142"/>
+        <rect x="486" y="318" width="20" height="142"/>
+        <rect x="543" y="318" width="20" height="142"/>
+        <rect x="600" y="318" width="20" height="142"/>
+        <rect x="657" y="318" width="20" height="142"/>
+        <rect x="714" y="318" width="20" height="142"/>
+        <rect x="771" y="318" width="20" height="142"/>
       </g>
 
       <!-- Column capitals -->
       <g fill="#060A10">
-        <rect x="31"  y="340" width="28" height="10"/>
-        <rect x="92"  y="340" width="28" height="10"/>
-        <rect x="153" y="340" width="28" height="10"/>
-        <rect x="214" y="340" width="28" height="10"/>
-        <rect x="275" y="340" width="28" height="10"/>
-        <rect x="336" y="340" width="28" height="10"/>
-        <rect x="397" y="340" width="28" height="10"/>
-        <rect x="458" y="340" width="28" height="10"/>
-        <rect x="519" y="340" width="28" height="10"/>
-        <rect x="580" y="340" width="28" height="10"/>
-        <rect x="641" y="340" width="28" height="10"/>
-        <rect x="702" y="340" width="28" height="10"/>
-        <rect x="763" y="340" width="28" height="10"/>
-        <rect x="824" y="340" width="28" height="10"/>
+        <rect x="26"  y="310" width="28" height="10"/>
+        <rect x="83"  y="310" width="28" height="10"/>
+        <rect x="140" y="310" width="28" height="10"/>
+        <rect x="197" y="310" width="28" height="10"/>
+        <rect x="254" y="310" width="28" height="10"/>
+        <rect x="311" y="310" width="28" height="10"/>
+        <rect x="368" y="310" width="28" height="10"/>
+        <rect x="425" y="310" width="28" height="10"/>
+        <rect x="482" y="310" width="28" height="10"/>
+        <rect x="539" y="310" width="28" height="10"/>
+        <rect x="596" y="310" width="28" height="10"/>
+        <rect x="653" y="310" width="28" height="10"/>
+        <rect x="710" y="310" width="28" height="10"/>
+        <rect x="767" y="310" width="28" height="10"/>
       </g>
 
       <!-- Column base flares -->
       <g fill="#070B15">
-        <rect x="31"  y="485" width="28" height="14"/>
-        <rect x="92"  y="485" width="28" height="14"/>
-        <rect x="153" y="485" width="28" height="14"/>
-        <rect x="214" y="485" width="28" height="14"/>
-        <rect x="275" y="485" width="28" height="14"/>
-        <rect x="336" y="485" width="28" height="14"/>
-        <rect x="397" y="485" width="28" height="14"/>
-        <rect x="458" y="485" width="28" height="14"/>
-        <rect x="519" y="485" width="28" height="14"/>
-        <rect x="580" y="485" width="28" height="14"/>
-        <rect x="641" y="485" width="28" height="14"/>
-        <rect x="702" y="485" width="28" height="14"/>
-        <rect x="763" y="485" width="28" height="14"/>
-        <rect x="824" y="485" width="28" height="14"/>
+        <rect x="26"  y="445" width="28" height="14"/>
+        <rect x="83"  y="445" width="28" height="14"/>
+        <rect x="140" y="445" width="28" height="14"/>
+        <rect x="197" y="445" width="28" height="14"/>
+        <rect x="254" y="445" width="28" height="14"/>
+        <rect x="311" y="445" width="28" height="14"/>
+        <rect x="368" y="445" width="28" height="14"/>
+        <rect x="425" y="445" width="28" height="14"/>
+        <rect x="482" y="445" width="28" height="14"/>
+        <rect x="539" y="445" width="28" height="14"/>
+        <rect x="596" y="445" width="28" height="14"/>
+        <rect x="653" y="445" width="28" height="14"/>
+        <rect x="710" y="445" width="28" height="14"/>
+        <rect x="767" y="445" width="28" height="14"/>
       </g>
 
       <!-- ENTABLATURE -->
-      <rect x="26"  y="278" width="828" height="64"  fill="url(#buildBody)"/>
-      <rect x="26"  y="340" width="828" height="5"   fill="#030508"/>
-      <rect x="26"  y="278" width="828" height="2.5" fill="url(#goldLine)"/>
+      <rect x="22"  y="258" width="776" height="62"  fill="url(#buildBody)"/>
+      <rect x="22"  y="318" width="776" height="4"   fill="#030508"/>
+      <rect x="22"  y="258" width="776" height="2.5" fill="url(#goldLine)"/>
 
       <!-- ATTIC STORY -->
-      <rect x="26"  y="118" width="828" height="162" fill="url(#buildBody)"/>
+      <rect x="22"  y="108" width="776" height="152" fill="url(#buildBody)"/>
 
-      <!-- Windows — 3 rows × 11 -->
+      <!-- Windows — 3 rows × 11
+           slot ≈ 776/11 = 70.5px, win = 24px
+           x: 32, 103, 173, 244, 314, 385, 455, 526, 596, 667, 737 -->
       <g fill="url(#winFill)">
-        <rect x="38"  y="128" width="26" height="36" rx="1"/>
-        <rect x="113" y="128" width="26" height="36" rx="1"/>
-        <rect x="189" y="128" width="26" height="36" rx="1"/>
-        <rect x="264" y="128" width="26" height="36" rx="1"/>
-        <rect x="339" y="128" width="26" height="36" rx="1"/>
-        <rect x="415" y="128" width="26" height="36" rx="1"/>
-        <rect x="490" y="128" width="26" height="36" rx="1"/>
-        <rect x="565" y="128" width="26" height="36" rx="1"/>
-        <rect x="641" y="128" width="26" height="36" rx="1"/>
-        <rect x="716" y="128" width="26" height="36" rx="1"/>
-        <rect x="791" y="128" width="26" height="36" rx="1"/>
+        <rect x="32"  y="118" width="24" height="34" rx="1"/>
+        <rect x="103" y="118" width="24" height="34" rx="1"/>
+        <rect x="173" y="118" width="24" height="34" rx="1"/>
+        <rect x="244" y="118" width="24" height="34" rx="1"/>
+        <rect x="314" y="118" width="24" height="34" rx="1"/>
+        <rect x="385" y="118" width="24" height="34" rx="1"/>
+        <rect x="455" y="118" width="24" height="34" rx="1"/>
+        <rect x="526" y="118" width="24" height="34" rx="1"/>
+        <rect x="596" y="118" width="24" height="34" rx="1"/>
+        <rect x="667" y="118" width="24" height="34" rx="1"/>
+        <rect x="737" y="118" width="24" height="34" rx="1"/>
 
-        <rect x="38"  y="178" width="26" height="36" rx="1" opacity="0.72"/>
-        <rect x="113" y="178" width="26" height="36" rx="1" opacity="0.72"/>
-        <rect x="189" y="178" width="26" height="36" rx="1" opacity="0.72"/>
-        <rect x="264" y="178" width="26" height="36" rx="1" opacity="0.72"/>
-        <rect x="339" y="178" width="26" height="36" rx="1" opacity="0.72"/>
-        <rect x="415" y="178" width="26" height="36" rx="1" opacity="0.72"/>
-        <rect x="490" y="178" width="26" height="36" rx="1" opacity="0.72"/>
-        <rect x="565" y="178" width="26" height="36" rx="1" opacity="0.72"/>
-        <rect x="641" y="178" width="26" height="36" rx="1" opacity="0.72"/>
-        <rect x="716" y="178" width="26" height="36" rx="1" opacity="0.72"/>
-        <rect x="791" y="178" width="26" height="36" rx="1" opacity="0.72"/>
+        <rect x="32"  y="164" width="24" height="34" rx="1" opacity="0.70"/>
+        <rect x="103" y="164" width="24" height="34" rx="1" opacity="0.70"/>
+        <rect x="173" y="164" width="24" height="34" rx="1" opacity="0.70"/>
+        <rect x="244" y="164" width="24" height="34" rx="1" opacity="0.70"/>
+        <rect x="314" y="164" width="24" height="34" rx="1" opacity="0.70"/>
+        <rect x="385" y="164" width="24" height="34" rx="1" opacity="0.70"/>
+        <rect x="455" y="164" width="24" height="34" rx="1" opacity="0.70"/>
+        <rect x="526" y="164" width="24" height="34" rx="1" opacity="0.70"/>
+        <rect x="596" y="164" width="24" height="34" rx="1" opacity="0.70"/>
+        <rect x="667" y="164" width="24" height="34" rx="1" opacity="0.70"/>
+        <rect x="737" y="164" width="24" height="34" rx="1" opacity="0.70"/>
 
-        <rect x="38"  y="228" width="26" height="34" rx="1" opacity="0.45"/>
-        <rect x="113" y="228" width="26" height="34" rx="1" opacity="0.45"/>
-        <rect x="189" y="228" width="26" height="34" rx="1" opacity="0.45"/>
-        <rect x="264" y="228" width="26" height="34" rx="1" opacity="0.45"/>
-        <rect x="339" y="228" width="26" height="34" rx="1" opacity="0.45"/>
-        <rect x="415" y="228" width="26" height="34" rx="1" opacity="0.45"/>
-        <rect x="490" y="228" width="26" height="34" rx="1" opacity="0.45"/>
-        <rect x="565" y="228" width="26" height="34" rx="1" opacity="0.45"/>
-        <rect x="641" y="228" width="26" height="34" rx="1" opacity="0.45"/>
-        <rect x="716" y="228" width="26" height="34" rx="1" opacity="0.45"/>
-        <rect x="791" y="228" width="26" height="34" rx="1" opacity="0.45"/>
+        <rect x="32"  y="210" width="24" height="32" rx="1" opacity="0.44"/>
+        <rect x="103" y="210" width="24" height="32" rx="1" opacity="0.44"/>
+        <rect x="173" y="210" width="24" height="32" rx="1" opacity="0.44"/>
+        <rect x="244" y="210" width="24" height="32" rx="1" opacity="0.44"/>
+        <rect x="314" y="210" width="24" height="32" rx="1" opacity="0.44"/>
+        <rect x="385" y="210" width="24" height="32" rx="1" opacity="0.44"/>
+        <rect x="455" y="210" width="24" height="32" rx="1" opacity="0.44"/>
+        <rect x="526" y="210" width="24" height="32" rx="1" opacity="0.44"/>
+        <rect x="596" y="210" width="24" height="32" rx="1" opacity="0.44"/>
+        <rect x="667" y="210" width="24" height="32" rx="1" opacity="0.44"/>
+        <rect x="737" y="210" width="24" height="32" rx="1" opacity="0.44"/>
       </g>
 
-      <!-- PARAPET / ROOF -->
-      <rect x="18"  y="90"  width="844" height="30"  fill="#0A1120"/>
-      <rect x="12"  y="76"  width="856" height="16"  fill="#070910"/>
-      <rect x="12"  y="76"  width="856" height="2"   fill="url(#goldLine)" opacity="0.52"/>
+      <!-- PARAPET -->
+      <rect x="14"  y="82"  width="792" height="28"  fill="#0A1120"/>
+      <rect x="8"   y="68"  width="804" height="16"  fill="#070910"/>
+      <rect x="8"   y="68"  width="804" height="2"   fill="url(#goldLine)" opacity="0.52"/>
 
       <!-- STEPS -->
-      <rect x="20"  y="600" width="840" height="22"  fill="url(#stepsGrad)"/>
-      <rect x="10"  y="622" width="860" height="20"  fill="#0B1520"/>
-      <rect x="0"   y="642" width="880" height="20"  fill="#09111C"/>
+      <rect x="16"  y="560" width="788" height="20"  fill="#0E1828"/>
+      <rect x="8"   y="580" width="804" height="18"  fill="#0B1520"/>
+      <rect x="0"   y="598" width="820" height="18"  fill="#09111C"/>
 
       <!-- GROUND -->
-      <rect x="0"   y="662" width="880" height="38"  fill="#06090E"/>
+      <rect x="0"   y="616" width="820" height="24"  fill="#06090E"/>
 
       <!-- Warm ground haze -->
-      <ellipse cx="440" cy="665" rx="420" ry="48"
-               fill="#C07828" fill-opacity="0.20"/>
+      <ellipse cx="410" cy="622" rx="395" ry="42"
+               fill="#C07828" fill-opacity="0.18"/>
 
-      <!-- Glowing stylobate sill -->
-      <rect x="26" y="499" width="828" height="2"
-            fill="url(#goldLine)" opacity="0.40"/>
+      <!-- Stylobate glow line -->
+      <rect x="22" y="459" width="776" height="2"
+            fill="url(#goldLine)" opacity="0.38"/>
 
     </svg>
   </div>
 
-  <!-- OVERLAYS -->
+  <!-- OVERLAYS (upper section only) -->
   <div class="fade-left"></div>
   <div class="fade-top"></div>
-  <div class="fade-bottom"></div>
   <div class="vignette"></div>
 
-  <!-- LOGO — TOPSTEP wordmark, small -->
+  <!-- LOGO — small TOPSTEP wordmark top-left -->
   <div class="logo-wrap">
-    <!--
-      To use the real logo SVG: paste your SVG contents here,
-      add width="~130" to the root <svg> element, and
-      apply filter: brightness(0) invert(1) if it's black-on-transparent.
-    -->
     <span class="logo-text">TOPSTEP</span>
   </div>
 
@@ -546,20 +594,35 @@
 
   </div>
 
-  <!-- RIGHT BULLETS PANEL — fills empty space beside building -->
-  <div class="bullets-panel">
-    <p class="bullets-label">What Happens Today</p>
-    <div class="bullet-item">
-      <span class="bullet-dot"></span>
-      <span class="bullet-text">Fed officials vote on where to set short-term interest rates, which influence borrowing costs across the economy.</span>
-    </div>
-    <div class="bullet-item">
-      <span class="bullet-dot"></span>
-      <span class="bullet-text">The statement explains why, covering growth, inflation, and key risks.</span>
-    </div>
-    <div class="bullet-item">
-      <span class="bullet-dot"></span>
-      <span class="bullet-text">The press conference expands on the decision, with the Fed Chair answering questions and giving real-time insight into how they view the economy and future policy.</span>
+  <!-- BOTTOM PANEL — full width, dark, readable -->
+  <div class="bottom-panel">
+    <p class="panel-label">What Happens Today</p>
+    <div class="bullets-grid">
+
+      <div class="bullet-col">
+        <div class="col-header">
+          <span class="col-pip"></span>
+          <span class="col-title">Interest Rates</span>
+        </div>
+        <p class="col-text">Fed officials vote on where to set short-term interest rates, which influence borrowing costs across the economy.</p>
+      </div>
+
+      <div class="bullet-col">
+        <div class="col-header">
+          <span class="col-pip"></span>
+          <span class="col-title">The Statement</span>
+        </div>
+        <p class="col-text">The statement explains why, covering growth, inflation, and key risks.</p>
+      </div>
+
+      <div class="bullet-col">
+        <div class="col-header">
+          <span class="col-pip"></span>
+          <span class="col-title">Press Conference</span>
+        </div>
+        <p class="col-text">The Fed Chair answers questions and gives real-time insight into how they view the economy and future policy.</p>
+      </div>
+
     </div>
   </div>
 
