@@ -31,19 +31,19 @@
       font-family: 'Work Sans', sans-serif;
     }
 
-    /* ── BACKGROUND ────────────────────────────────── */
+    /* ── BACKGROUND ────────────────────────────────────── */
     .bg-base {
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(ellipse 980px 680px at 72% 82%,
-          rgba(175,95,25,0.68) 0%,
-          rgba(135,70,15,0.38) 32%,
-          rgba(27,41,69,0.18) 62%,
+        radial-gradient(ellipse 960px 680px at 68% 80%,
+          rgba(175,95,25,0.65) 0%,
+          rgba(135,70,15,0.36) 32%,
+          rgba(27,41,69,0.16) 62%,
           transparent 82%
         ),
-        radial-gradient(ellipse 620px 380px at 72% 100%,
-          rgba(215,135,45,0.52) 0%,
+        radial-gradient(ellipse 580px 360px at 68% 100%,
+          rgba(215,135,45,0.50) 0%,
           transparent 55%
         ),
         linear-gradient(175deg, #0A0F18 0%, #0D1522 55%, #080D14 100%);
@@ -55,7 +55,7 @@
       background-image:
         repeating-linear-gradient(90deg,
           transparent 0px, transparent 49px,
-          rgba(105,182,210,0.016) 49px, rgba(105,182,210,0.016) 50px
+          rgba(105,182,210,0.015) 49px, rgba(105,182,210,0.015) 50px
         ),
         repeating-linear-gradient(0deg,
           transparent 0px, transparent 49px,
@@ -63,7 +63,7 @@
         );
     }
 
-    /* ── BUILDING ──────────────────────────────────── */
+    /* ── BUILDING ──────────────────────────────────────── */
     .building-wrap {
       position: absolute;
       right: 20px;
@@ -73,16 +73,16 @@
       pointer-events: none;
     }
 
-    /* ── OVERLAYS ──────────────────────────────────── */
+    /* ── OVERLAYS ──────────────────────────────────────── */
     .fade-left {
       position: absolute;
       inset: 0;
       background: linear-gradient(
         90deg,
-        rgba(8,13,20,0.94) 0%,
-        rgba(8,13,20,0.82) 34%,
-        rgba(8,13,20,0.38) 56%,
-        transparent 70%
+        rgba(8,13,20,0.95) 0%,
+        rgba(8,13,20,0.84) 32%,
+        rgba(8,13,20,0.36) 54%,
+        transparent 68%
       );
     }
 
@@ -97,7 +97,7 @@
       position: absolute;
       inset: 0;
       background: radial-gradient(ellipse 110% 110% at 50% 50%,
-        transparent 46%, rgba(5,8,13,0.72) 100%);
+        transparent 46%, rgba(5,8,13,0.70) 100%);
     }
 
     .fade-bottom {
@@ -107,7 +107,7 @@
       background: linear-gradient(0deg, rgba(5,8,12,0.96) 0%, transparent 100%);
     }
 
-    /* ── LOGO ──────────────────────────────────────── */
+    /* ── LOGO ──────────────────────────────────────────── */
     .logo-wrap {
       position: absolute;
       top: 44px;
@@ -115,25 +115,36 @@
       z-index: 20;
     }
 
-    /* ── CONTENT ───────────────────────────────────── */
+    .logo-text {
+      font-family: 'Work Sans', sans-serif;
+      font-weight: 900;
+      font-size: 21px;
+      letter-spacing: 0.10em;
+      color: #FFFFFF;
+      text-transform: uppercase;
+      display: block;
+      line-height: 1;
+    }
+
+    /* ── LEFT CONTENT ──────────────────────────────────── */
     .content {
       position: absolute;
       left: 70px;
       top: 0; bottom: 0;
-      width: 800px;
+      width: 620px;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding-top: 30px;
-      padding-bottom: 30px;
+      padding-top: 20px;
+      padding-bottom: 20px;
       z-index: 10;
     }
 
     .headline {
       font-family: 'Paralucent', 'Futura', 'Century Gothic', 'Work Sans', sans-serif;
       font-weight: 500;
-      font-size: 155px;
-      line-height: 0.87;
+      font-size: 162px;
+      line-height: 0.86;
       letter-spacing: -0.03em;
       text-transform: uppercase;
       background: linear-gradient(180deg,
@@ -152,7 +163,7 @@
       width: 52px;
       height: 2px;
       background: linear-gradient(90deg, #E2A355, #F6DCA8 55%, transparent);
-      margin-bottom: 24px;
+      margin-bottom: 22px;
     }
 
     .subheadline {
@@ -161,7 +172,7 @@
       letter-spacing: 0.07em;
       color: #FFFFFF;
       text-transform: uppercase;
-      margin-bottom: 30px;
+      margin-bottom: 28px;
       line-height: 1;
     }
 
@@ -170,7 +181,7 @@
       display: flex;
       flex-direction: column;
       gap: 9px;
-      margin-bottom: 28px;
+      margin-bottom: 30px;
     }
 
     .schedule-row {
@@ -190,7 +201,7 @@
     .schedule-text {
       font-weight: 300;
       font-size: 16px;
-      letter-spacing: 0.22em;
+      letter-spacing: 0.20em;
       color: #B9D4D4;
       text-transform: uppercase;
     }
@@ -204,55 +215,64 @@
       padding-left: 14px;
     }
 
-    /* Badge */
+    /* Badge — larger */
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 9px;
-      border: 1px solid rgba(226,163,85,0.48);
+      gap: 10px;
+      border: 1px solid rgba(226,163,85,0.50);
       border-radius: 3px;
-      padding: 7px 18px 7px 14px;
+      padding: 9px 22px 9px 16px;
       width: fit-content;
-      background: rgba(226,163,85,0.09);
-      margin-bottom: 30px;
+      background: rgba(226,163,85,0.10);
     }
 
     .badge-dot {
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: #E2A355;
-      box-shadow: 0 0 7px 2px rgba(226,163,85,0.60);
+      box-shadow: 0 0 8px 2px rgba(226,163,85,0.60);
+      flex-shrink: 0;
     }
 
     .badge-text {
       font-weight: 600;
-      font-size: 11px;
-      letter-spacing: 0.30em;
+      font-size: 14px;
+      letter-spacing: 0.26em;
       color: #E2A355;
       text-transform: uppercase;
     }
 
-    /* Bullets section */
-    .bullets-section {
-      border-top: 1px solid rgba(226,163,85,0.22);
-      padding-top: 18px;
+    /* ── RIGHT BULLETS PANEL ───────────────────────────── */
+    .bullets-panel {
+      position: absolute;
+      right: 52px;
+      bottom: 52px;
+      width: 650px;
+      z-index: 12;
+      border-top: 1px solid rgba(226,163,85,0.28);
+      padding-top: 20px;
     }
 
     .bullets-label {
-      font-weight: 300;
-      font-size: 10px;
-      letter-spacing: 0.40em;
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 0.36em;
       color: #69B6D2;
       text-transform: uppercase;
-      margin-bottom: 13px;
+      margin-bottom: 16px;
     }
 
     .bullet-item {
       display: flex;
       align-items: flex-start;
-      gap: 10px;
-      margin-bottom: 7px;
+      gap: 11px;
+      margin-bottom: 10px;
+    }
+
+    .bullet-item:last-child {
+      margin-bottom: 0;
     }
 
     .bullet-dot {
@@ -261,15 +281,16 @@
       border-radius: 50%;
       background: #E2A355;
       flex-shrink: 0;
-      margin-top: 5px;
+      margin-top: 6px;
     }
 
     .bullet-text {
       font-weight: 300;
-      font-size: 12.5px;
-      line-height: 1.55;
+      font-size: 13px;
+      line-height: 1.58;
       letter-spacing: 0.03em;
-      color: rgba(185,212,212,0.78);
+      color: rgba(185,212,212,0.82);
+      text-shadow: 0 1px 10px rgba(8,13,20,0.9);
     }
   </style>
 </head>
@@ -287,8 +308,6 @@
          width="880" height="700"
          aria-hidden="true">
       <defs>
-
-        <!-- Sky glow — peak at colonnade height (~57% of 700 = y 399) -->
         <radialGradient id="skyGlow" cx="50%" cy="57%" r="58%">
           <stop offset="0%"   stop-color="#CC8828" stop-opacity="0.95"/>
           <stop offset="20%"  stop-color="#B07020" stop-opacity="0.72"/>
@@ -297,7 +316,6 @@
           <stop offset="100%" stop-color="#080D14" stop-opacity="0"/>
         </radialGradient>
 
-        <!-- Horizon burst — intense glow at building base -->
         <radialGradient id="horizonBurst" cx="50%" cy="94%" r="48%">
           <stop offset="0%"   stop-color="#DC9438" stop-opacity="0.90"/>
           <stop offset="28%"  stop-color="#AA6A20" stop-opacity="0.52"/>
@@ -305,19 +323,16 @@
           <stop offset="100%" stop-color="#080D14" stop-opacity="0"/>
         </radialGradient>
 
-        <!-- Building body: near-black silhouette -->
         <linearGradient id="buildBody" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%"   stop-color="#09101C"/>
           <stop offset="100%" stop-color="#05080D"/>
         </linearGradient>
 
-        <!-- Steps -->
         <linearGradient id="stepsGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%"   stop-color="#0E1828"/>
           <stop offset="100%" stop-color="#06090E"/>
         </linearGradient>
 
-        <!-- Gold cornice -->
         <linearGradient id="goldLine" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%"   stop-color="#AA723A" stop-opacity="0"/>
           <stop offset="18%"  stop-color="#D29C5C" stop-opacity="0.72"/>
@@ -326,13 +341,11 @@
           <stop offset="100%" stop-color="#AA723A" stop-opacity="0"/>
         </linearGradient>
 
-        <!-- Window -->
         <linearGradient id="winFill" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%"   stop-color="#243248"/>
           <stop offset="100%" stop-color="#172030"/>
         </linearGradient>
 
-        <!-- Ray mask — fade rays at top and bottom -->
         <linearGradient id="rayFade" x1="0" y1="1" x2="0" y2="0">
           <stop offset="0%"   stop-color="white" stop-opacity="0"/>
           <stop offset="18%"  stop-color="white" stop-opacity="1"/>
@@ -342,14 +355,11 @@
         <mask id="rayMask">
           <rect width="880" height="700" fill="url(#rayFade)"/>
         </mask>
-
       </defs>
 
-      <!-- ATMOSPHERE -->
       <rect x="0" y="0" width="880" height="700" fill="url(#skyGlow)"/>
       <rect x="0" y="0" width="880" height="700" fill="url(#horizonBurst)"/>
 
-      <!-- CREPUSCULAR RAYS -->
       <g mask="url(#rayMask)" opacity="0.16">
         <line x1="440" y1="640" x2="30"  y2="0"   stroke="#DC9438" stroke-width="85"/>
         <line x1="440" y1="640" x2="130" y2="0"   stroke="#CC8428" stroke-width="60"/>
@@ -362,31 +372,8 @@
         <line x1="440" y1="640" x2="850" y2="0"   stroke="#DC9438" stroke-width="85"/>
       </g>
 
-      <!-- ════════════════════════════════════════
-           ECCLES BUILDING — 880 × 700 viewport
-
-           Facade: x 35 → 845  (810px wide)
-           Ground: y 635
-           Roof:   y  88
-
-           top → bottom:
-             Parapet cap     y  78 –  90
-             Parapet         y  90 – 118
-             Attic story     y 118 – 278
-             Entablature     y 278 – 348
-             Colonnade       y 348 – 498
-             Stylobate       y 498 – 518
-             High podium     y 518 – 600
-             Steps × 3       y 600 – 635
-           ════════════════════════════════════════
-           14 columns · 20px wide · 61px pitch
-           x: 35, 96, 157, 218, 279, 340, 401, 462,
-              523, 584, 645, 706, 767, 828
-           ════════════════════════════════════════ -->
-
       <!-- PODIUM -->
       <rect x="35"  y="518" width="810" height="82"  fill="url(#buildBody)"/>
-
       <!-- STYLOBATE -->
       <rect x="35"  y="498" width="810" height="22"  fill="#0B1420"/>
 
@@ -447,17 +434,13 @@
       <!-- ENTABLATURE -->
       <rect x="26"  y="278" width="828" height="64"  fill="url(#buildBody)"/>
       <rect x="26"  y="340" width="828" height="5"   fill="#030508"/>
-      <!-- Gold cornice top -->
       <rect x="26"  y="278" width="828" height="2.5" fill="url(#goldLine)"/>
 
       <!-- ATTIC STORY -->
       <rect x="26"  y="118" width="828" height="162" fill="url(#buildBody)"/>
 
-      <!-- Windows — 3 rows × 11 each
-           slot = 828/11 = 75.3px, win = 26px wide
-           x: 38, 113, 189, 264, 339, 415, 490, 565, 641, 716, 791 -->
+      <!-- Windows — 3 rows × 11 -->
       <g fill="url(#winFill)">
-        <!-- Row 1 y=128 -->
         <rect x="38"  y="128" width="26" height="36" rx="1"/>
         <rect x="113" y="128" width="26" height="36" rx="1"/>
         <rect x="189" y="128" width="26" height="36" rx="1"/>
@@ -469,7 +452,7 @@
         <rect x="641" y="128" width="26" height="36" rx="1"/>
         <rect x="716" y="128" width="26" height="36" rx="1"/>
         <rect x="791" y="128" width="26" height="36" rx="1"/>
-        <!-- Row 2 y=178 -->
+
         <rect x="38"  y="178" width="26" height="36" rx="1" opacity="0.72"/>
         <rect x="113" y="178" width="26" height="36" rx="1" opacity="0.72"/>
         <rect x="189" y="178" width="26" height="36" rx="1" opacity="0.72"/>
@@ -481,7 +464,7 @@
         <rect x="641" y="178" width="26" height="36" rx="1" opacity="0.72"/>
         <rect x="716" y="178" width="26" height="36" rx="1" opacity="0.72"/>
         <rect x="791" y="178" width="26" height="36" rx="1" opacity="0.72"/>
-        <!-- Row 3 y=228 -->
+
         <rect x="38"  y="228" width="26" height="34" rx="1" opacity="0.45"/>
         <rect x="113" y="228" width="26" height="34" rx="1" opacity="0.45"/>
         <rect x="189" y="228" width="26" height="34" rx="1" opacity="0.45"/>
@@ -508,11 +491,11 @@
       <!-- GROUND -->
       <rect x="0"   y="662" width="880" height="38"  fill="#06090E"/>
 
-      <!-- Warm haze at base of building -->
+      <!-- Warm ground haze -->
       <ellipse cx="440" cy="665" rx="420" ry="48"
                fill="#C07828" fill-opacity="0.20"/>
 
-      <!-- Glowing sill at stylobate -->
+      <!-- Glowing stylobate sill -->
       <rect x="26" y="499" width="828" height="2"
             fill="url(#goldLine)" opacity="0.40"/>
 
@@ -525,20 +508,17 @@
   <div class="fade-bottom"></div>
   <div class="vignette"></div>
 
-  <!-- LOGO — simple "T" mark top-left -->
+  <!-- LOGO — TOPSTEP wordmark, small -->
   <div class="logo-wrap">
     <!--
-      REPLACE with your actual Topstep T mark SVG.
-      Size target: ~36×36px.
+      To use the real logo SVG: paste your SVG contents here,
+      add width="~130" to the root <svg> element, and
+      apply filter: brightness(0) invert(1) if it's black-on-transparent.
     -->
-    <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
-      <!-- Geometric T mark placeholder -->
-      <rect x="2"  y="3"  width="32" height="8"  rx="1" fill="#FFFFFF"/>
-      <rect x="14" y="3"  width="8"  height="30" rx="1" fill="#FFFFFF"/>
-    </svg>
+    <span class="logo-text">TOPSTEP</span>
   </div>
 
-  <!-- MAIN CONTENT -->
+  <!-- LEFT CONTENT -->
   <div class="content">
 
     <h1 class="headline">FOMC<br>DAY</h1>
@@ -554,7 +534,7 @@
       </div>
       <div class="schedule-row">
         <span class="pip"></span>
-        <span class="schedule-text">Jerome Powell &nbsp;·&nbsp; Press Conference &nbsp;·&nbsp; 1:30 PM CST</span>
+        <span class="schedule-text">Press Conference &nbsp;·&nbsp; 1:30 PM CST</span>
       </div>
       <p class="schedule-date">&nbsp;&nbsp;&nbsp;April 29, 2026</p>
     </div>
@@ -564,22 +544,23 @@
       <span class="badge-text">Watch Live on TopstepTV</span>
     </div>
 
-    <div class="bullets-section">
-      <p class="bullets-label">What Happens Today</p>
-      <div class="bullet-item">
-        <span class="bullet-dot"></span>
-        <span class="bullet-text">Fed officials vote on where to set short-term interest rates, which influence borrowing costs across the economy.</span>
-      </div>
-      <div class="bullet-item">
-        <span class="bullet-dot"></span>
-        <span class="bullet-text">The statement explains why, covering growth, inflation, and key risks.</span>
-      </div>
-      <div class="bullet-item">
-        <span class="bullet-dot"></span>
-        <span class="bullet-text">The press conference expands on the decision, with the Fed Chair answering questions and giving real-time insight into how they view the economy and future policy.</span>
-      </div>
-    </div>
+  </div>
 
+  <!-- RIGHT BULLETS PANEL — fills empty space beside building -->
+  <div class="bullets-panel">
+    <p class="bullets-label">What Happens Today</p>
+    <div class="bullet-item">
+      <span class="bullet-dot"></span>
+      <span class="bullet-text">Fed officials vote on where to set short-term interest rates, which influence borrowing costs across the economy.</span>
+    </div>
+    <div class="bullet-item">
+      <span class="bullet-dot"></span>
+      <span class="bullet-text">The statement explains why, covering growth, inflation, and key risks.</span>
+    </div>
+    <div class="bullet-item">
+      <span class="bullet-dot"></span>
+      <span class="bullet-text">The press conference expands on the decision, with the Fed Chair answering questions and giving real-time insight into how they view the economy and future policy.</span>
+    </div>
   </div>
 
 </div>
