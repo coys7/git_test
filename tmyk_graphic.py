@@ -115,7 +115,7 @@ def draw_trail(canvas):
     T_n = T / length                     # [0, 1]
 
     # Quadratic taper: stays wide through most of trail, tapers sharply near head
-    HW_TAIL, HW_HEAD = 185.0, 14.0
+    HW_TAIL, HW_HEAD = 185.0, 5.0
     t_sq   = np.clip(T_n, 0, 1) ** 2
     half_w = HW_TAIL + (HW_HEAD - HW_TAIL) * t_sq
 
@@ -124,11 +124,13 @@ def draw_trail(canvas):
     # ── alpha mask ────────────────────────────────────────────────────────────
     in_trail = (T_n >= 0) & (T_n <= 1.0) & (np.abs(D_n) <= 1.0)
 
-    # Soft tail fade (0→5 %) and crisp head end
-    fade = np.clip(T_n / 0.05, 0, 1) * np.clip((1 - T_n) / 0.025, 0, 1)
-    # Smooth outer edges of ribbon (0.09 = ~17px feather at tail width)
+    # Tail fade (0→5%), head fade dissolves over last 20% — gaussian dropoff
+    tail_fade = np.clip(T_n / 0.05, 0, 1)
+    head_fade = np.where(T_n < 0.80, 1.0,
+                         np.exp(-((T_n - 0.80) / 0.10) ** 2))
+    # Smooth outer edges of ribbon
     edge = np.clip((1.0 - np.abs(D_n)) / 0.09, 0, 1)
-    alpha_f = in_trail.astype(np.float32) * fade * edge
+    alpha_f = in_trail.astype(np.float32) * tail_fade * head_fade * edge
 
     # ── colour: two main bands + thin bright seam ─────────────────────────────
     #
