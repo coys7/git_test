@@ -100,43 +100,8 @@ for i, alpha in enumerate(range(0, 160, 5)):
 img = Image.alpha_composite(img.convert('RGBA'), glow).convert('RGB')
 draw = ImageDraw.Draw(img)
 
-# ── Big "T" watermark — glow approach so it reads golden, not muddy ────────
-TX, TY = 950, 10
-TW, TH = 680, 882
-BAR_H  = 138
-SW     = int(TW * 0.245)
-SX     = TX + (TW - SW) // 2
-
-# Draw T at full opacity in bright warm gold for the source shape
-T_src = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-ImageDraw.Draw(T_src).rectangle([TX, TY, TX + TW, TY + BAR_H], fill=(255, 218, 128, 255))
-ImageDraw.Draw(T_src).rectangle([SX, TY, SX + SW, TY + TH],    fill=(255, 218, 128, 255))
-
-# Layer 1 — wide soft halo (large blur, very low alpha)
-halo = np.array(T_src.filter(ImageFilter.GaussianBlur(radius=45))).astype(np.float32)
-halo[:, :, 3] *= 0.22
-halo = halo.clip(0, 255).astype(np.uint8)
-
-# Layer 2 — tight glow (small blur, low alpha — brightens edges)
-edge = np.array(T_src.filter(ImageFilter.GaussianBlur(radius=6))).astype(np.float32)
-edge[:, :, 3] *= 0.10
-edge = edge.clip(0, 255).astype(np.uint8)
-
-# Layer 3 — crisp fill (flat shape, ~12 % opacity)
-crisp = np.array(T_src).astype(np.float32)
-crisp[:, :, 3] *= 0.12
-crisp = crisp.clip(0, 255).astype(np.uint8)
-
-base = img.convert('RGBA')
-base = Image.alpha_composite(base, Image.fromarray(halo,  'RGBA'))
-base = Image.alpha_composite(base, Image.fromarray(edge,  'RGBA'))
-base = Image.alpha_composite(base, Image.fromarray(crisp, 'RGBA'))
-img  = base.convert('RGB')
-draw = ImageDraw.Draw(img)
-
 # ── Determine headline font size ───────────────────────────────────────────
-# "MARKET HOURS" must fit within MAX_W px (left margin + MAX_W < T stem edge)
-MAX_W = 1200
+MAX_W = 1400
 
 for HL_SZ in range(210, 79, -2):
     hf = fnt('h', HL_SZ)
@@ -146,7 +111,7 @@ for HL_SZ in range(210, 79, -2):
 
 HF  = fnt('h', HL_SZ)
 SF  = fnt('wsl', 36)
-EF  = fnt('wsm', 16)
+EF  = fnt('wsm', 26)
 
 _, hh = measure('HOLIDAY',      HF)
 _, mh = measure('MARKET HOURS', HF)
@@ -163,7 +128,7 @@ DIV_GAP   = 42   # MARKET HOURS → divider gap
 DIV_H     = 3    # divider height
 SUB_GAP   = 28   # divider → subtitle gap
 _, sub_h  = measure('Plan your trades accordingly.', SF)
-ey_h      = 20   # eyebrow approx height
+_, ey_h   = measure('T O P S T E P', EF)
 
 total_h = ey_h + EY_GAP + RU_H + RU_GAP + hh + HL_GAP + mh + DIV_GAP + DIV_H + SUB_GAP + sub_h
 
