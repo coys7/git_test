@@ -38,14 +38,31 @@ def load_font(size, weight=800):
     return ImageFont.load_default()
 
 
-# ── gradient text ─────────────────────────────────────────────────────────────
-def gradient_text(canvas, text, font, cx, cy, c_left, c_right):
+# ── text helpers ───────────────────────────────────────────────────────────────
+def _text_origin(text, font, cx, cy):
+    """Return (tx, ty) top-left draw position for centred text at (cx, cy)."""
     tmp  = Image.new('RGBA', (W, H), (0, 0, 0, 0))
     bbox = ImageDraw.Draw(tmp).textbbox((0, 0), text, font=font, anchor="lt")
     tw   = bbox[2] - bbox[0]
     th   = bbox[3] - bbox[1]
-    tx   = cx - tw / 2
-    ty   = cy - th / 2 - bbox[1]
+    return cx - tw / 2, cy - th / 2 - bbox[1]
+
+
+def text_shadow(canvas, text, font, cx, cy, dx=0, dy=5, blur=6, alpha=210):
+    """Dark drop shadow — call before gradient_text."""
+    tx, ty = _text_origin(text, font, cx, cy)
+    sh = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(sh).text((tx + dx, ty + dy), text,
+                            font=font, fill=(*NIGHT, alpha), anchor="lt")
+    sh = sh.filter(ImageFilter.GaussianBlur(radius=blur))
+    canvas.alpha_composite(sh)
+
+
+def gradient_text(canvas, text, font, cx, cy, c_left, c_right):
+    tx, ty = _text_origin(text, font, cx, cy)
+    tmp    = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    bbox   = ImageDraw.Draw(tmp).textbbox((0, 0), text, font=font, anchor="lt")
+    tw     = bbox[2] - bbox[0]
 
     mask = Image.new('L', (W, H), 0)
     ImageDraw.Draw(mask).text((tx, ty), text, font=font, fill=255, anchor="lt")
@@ -266,6 +283,10 @@ def render():
             fill=(*GOLD_ACC, 40), anchor="mm")
     bloom = bloom.filter(ImageFilter.GaussianBlur(radius=22))
     canvas.alpha_composite(bloom)
+
+    # Drop shadows — make text readable against the gold trail stripe
+    text_shadow(canvas, "THE MORE", font_lg, text_cx, text_cy - 80, dy=6, blur=7, alpha=220)
+    text_shadow(canvas, "YOU KNOW", font_lg, text_cx, text_cy + 80, dy=6, blur=7, alpha=220)
 
     gradient_text(canvas, "THE MORE", font_lg, text_cx, text_cy - 80, GOLD_TXT, GOLD_ACC)
     gradient_text(canvas, "YOU KNOW", font_lg, text_cx, text_cy + 80, GOLD_ACC, GOLD_TXT)
