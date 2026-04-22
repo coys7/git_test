@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Topstep-branded 'The More You Know' graphic – 1600x900 PNG."""
+"""Topstep 'The More You Know' – straight diagonal, wide colour bands, solid star."""
 
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import numpy as np
@@ -22,132 +22,15 @@ GOLD_ACC = (226, 163,  85)
 GOLD_TXT = (246, 220, 168)
 WHITE    = (255, 255, 255)
 
-
 def lerp(a, b, t):
     return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
-
-def trader_gold(t):
-    stops = [(0.0, GOLD_0), (0.45, GOLD_45), (0.75, GOLD_75), (1.0, GOLD_100)]
-    for i in range(len(stops) - 1):
-        t0, c0 = stops[i]; t1, c1 = stops[i+1]
-        if t <= t1:
-            return lerp(c0, c1, (t - t0) / (t1 - t0))
-    return GOLD_100
-
-
-# ── cubic bezier ─────────────────────────────────────────────────────────────
-def bezier(t, pts):
-    p0, p1, p2, p3 = pts
-    mt = 1 - t
-    return (mt**3*p0[0] + 3*mt**2*t*p1[0] + 3*mt*t**2*p2[0] + t**3*p3[0],
-            mt**3*p0[1] + 3*mt**2*t*p1[1] + 3*mt*t**2*p2[1] + t**3*p3[1])
-
-def bezier_tangent(t, pts):
-    p0, p1, p2, p3 = pts
-    mt = 1 - t
-    dx = 3*(mt**2*(p1[0]-p0[0]) + 2*mt*t*(p2[0]-p1[0]) + t**2*(p3[0]-p2[0]))
-    dy = 3*(mt**2*(p1[1]-p0[1]) + 2*mt*t*(p2[1]-p1[1]) + t**2*(p3[1]-p2[1]))
-    return (dx, dy)
-
-
-# ── arc definition ────────────────────────────────────────────────────────────
-# tail (lower-left) → head (upper-right)
-ARC = [(50, 840), (300, 130), (960, 90), (1460, 255)]
-N   = 1400   # sample density
-
-
-def arc_spine(n=N):
-    """Return (x, y) centre-line points of the arc."""
-    return [bezier(i / n, ARC) for i in range(n + 1)]
-
-
-def arc_normals(spine):
-    """Unit normal (perpendicular, pointing 'above' the curve) at each spine point."""
-    normals = []
-    for i in range(len(spine)):
-        if i < len(spine) - 1:
-            tx = spine[i+1][0] - spine[i][0]
-            ty = spine[i+1][1] - spine[i][1]
-        else:
-            tx = spine[i][0] - spine[i-1][0]
-            ty = spine[i][1] - spine[i-1][1]
-        mag = math.sqrt(tx*tx + ty*ty) or 1.0
-        # normal pointing outward (away from the concave side = "above" the arc)
-        normals.append((-ty / mag, tx / mag))
-    return normals
-
-
-def offset_polyline(spine, normals, offset):
-    """Shift every point along the normal by `offset` pixels."""
-    return [(spine[i][0] + normals[i][0] * offset,
-             spine[i][1] + normals[i][1] * offset)
-            for i in range(len(spine))]
-
-
-def draw_polyline(layer, pts, color, width, alpha=255):
-    d = ImageDraw.Draw(layer)
-    col = (*color, alpha) if len(color) == 3 else color
-    flat = [coord for p in pts for coord in p]
-    d.line(flat, fill=col, width=width, joint="curve")
-
-
-# ── sparkle ──────────────────────────────────────────────────────────────────
-def draw_sparkle(canvas, cx, cy, r_outer=72, r_inner=18, spikes=4,
-                 color=GOLD_75, glow_color=GOLD_ACC):
-    # large diffuse bloom — several passes for a soft halo
-    glow = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-    gd   = ImageDraw.Draw(glow)
-    for rad, a in [
-        (r_outer * 5.0, 18),
-        (r_outer * 3.5, 38),
-        (r_outer * 2.2, 70),
-        (r_outer * 1.4, 120),
-        (r_outer * 0.8, 180),
-    ]:
-        gd.ellipse([cx-rad, cy-rad, cx+rad, cy+rad], fill=(*glow_color, a))
-    glow = glow.filter(ImageFilter.GaussianBlur(radius=r_outer * 1.1))
-    canvas.alpha_composite(glow)
-
-    # lens-flare streaks first (behind the star shape)
-    fl = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-    fd = ImageDraw.Draw(fl)
-    for angle, alen, aw, aa in [
-        (0,            r_outer * 2.6, 5, 210),
-        (math.pi/2,    r_outer * 2.6, 5, 210),
-        (math.pi/4,    r_outer * 1.5, 3, 160),
-        (3*math.pi/4,  r_outer * 1.5, 3, 160),
-        (math.pi/8,    r_outer * 1.1, 2, 100),
-        (3*math.pi/8,  r_outer * 1.1, 2, 100),
-        (5*math.pi/8,  r_outer * 1.1, 2, 100),
-        (7*math.pi/8,  r_outer * 1.1, 2, 100),
-    ]:
-        x1 = cx + math.cos(angle)*alen;  y1 = cy + math.sin(angle)*alen
-        x2 = cx - math.cos(angle)*alen;  y2 = cy - math.sin(angle)*alen
-        fd.line([x1, y1, x2, y2], fill=(*WHITE, aa), width=aw)
-    fl = fl.filter(ImageFilter.GaussianBlur(radius=1.5))
-    canvas.alpha_composite(fl)
-
-    # 4-point star shape
-    sl = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-    sd = ImageDraw.Draw(sl)
-    pts = []
-    for k in range(spikes * 2):
-        angle = math.pi / spikes * k - math.pi / 2
-        r = r_outer if k % 2 == 0 else r_inner
-        pts.append((cx + r*math.cos(angle), cy + r*math.sin(angle)))
-    sd.polygon(pts, fill=(*color, 255))
-    # bright centre dot
-    cr = r_outer * 0.25
-    sd.ellipse([cx-cr, cy-cr, cx+cr, cy+cr], fill=(*WHITE, 255))
-    canvas.alpha_composite(sl)
 
 
 # ── fonts ─────────────────────────────────────────────────────────────────────
 def load_font(size, weight=800):
-    for name, w in [(f"WorkSans-{weight}.ttf", weight)]:
-        p = os.path.join(FONTS, name)
-        if os.path.exists(p):
-            return ImageFont.truetype(p, size)
+    p = os.path.join(FONTS, f"WorkSans-{weight}.ttf")
+    if os.path.exists(p):
+        return ImageFont.truetype(p, size)
     for fb in ["/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
                "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"]:
         if os.path.exists(fb):
@@ -155,7 +38,7 @@ def load_font(size, weight=800):
     return ImageFont.load_default()
 
 
-# ── gradient text ──────────────────────────────────────────────────────────────
+# ── gradient text ─────────────────────────────────────────────────────────────
 def gradient_text(canvas, text, font, cx, cy, c_left, c_right):
     tmp  = Image.new('RGBA', (W, H), (0, 0, 0, 0))
     bbox = ImageDraw.Draw(tmp).textbbox((0, 0), text, font=font, anchor="lt")
@@ -177,136 +60,237 @@ def gradient_text(canvas, text, font, cx, cy, c_left, c_right):
     canvas.alpha_composite(grad)
 
 
+# ── trail geometry ────────────────────────────────────────────────────────────
+# tail bleeds off lower-left; head is where the star sits
+P_TAIL = np.array([-120.0, 920.0])
+P_HEAD = np.array([1320.0, 130.0])
+
+
+def _trail_axes():
+    v      = P_HEAD - P_TAIL
+    length = float(np.linalg.norm(v))
+    u      = v / length                     # unit along trail
+    n      = np.array([u[1], -u[0]])        # normal (rotated -90°) → points upper-left
+    return length, u, n
+
+
+TRAIL_LEN, TRAIL_U, TRAIL_N = _trail_axes()
+
+
+# ── pixel-accurate trail rendering ───────────────────────────────────────────
+def draw_trail(canvas):
+    """
+    Numpy-based trail: each pixel colour is determined by its perpendicular
+    position within the tapered wedge.  Two main bold bands (Ice/Glacier and
+    Gold) with soft internal glow, sharp band boundary, minimal blur.
+    """
+    length, u, n = TRAIL_LEN, TRAIL_U, TRAIL_N
+
+    # Per-pixel projections
+    ys = np.arange(H, dtype=np.float32)
+    xs = np.arange(W, dtype=np.float32)
+    XX, YY = np.meshgrid(xs, ys)
+
+    dx = XX - P_TAIL[0];  dy = YY - P_TAIL[1]
+    T  = dx * u[0] + dy * u[1]          # along trail   [0, length]
+    D  = dx * n[0] + dy * n[1]          # perp distance (+ = upper side)
+
+    T_n = T / length                     # [0, 1]
+
+    # Quadratic taper: stays wide through most of trail, tapers sharply near head
+    HW_TAIL, HW_HEAD = 185.0, 14.0
+    t_sq   = np.clip(T_n, 0, 1) ** 2
+    half_w = HW_TAIL + (HW_HEAD - HW_TAIL) * t_sq
+
+    D_n = D / (half_w + 1e-6)           # normalised perp, [-1, +1]
+
+    # ── alpha mask ────────────────────────────────────────────────────────────
+    in_trail = (T_n >= 0) & (T_n <= 1.0) & (np.abs(D_n) <= 1.0)
+
+    # Soft tail fade (0→5 %) and crisp head end
+    fade = np.clip(T_n / 0.05, 0, 1) * np.clip((1 - T_n) / 0.025, 0, 1)
+    # Smooth outer edges of ribbon (0.09 = ~17px feather at tail width)
+    edge = np.clip((1.0 - np.abs(D_n)) / 0.09, 0, 1)
+    alpha_f = in_trail.astype(np.float32) * fade * edge
+
+    # ── colour: two main bands + thin bright seam ─────────────────────────────
+    #
+    # D_n layout: + = upper-left (Ice/Glacier), - = lower-right (Gold)
+    #
+    colour_stops = [
+        (-1.00, np.array([ 70,  38,   8], dtype=np.float32)),  # outer shadow
+        (-0.88, np.array(GOLD_0,         dtype=np.float32)),    # gold dark outer
+        (-0.55, np.array(GOLD_45,        dtype=np.float32)),    # gold mid
+        (-0.12, np.array(GOLD_75,        dtype=np.float32)),    # gold bright
+        (-0.04, np.array(GOLD_TXT,       dtype=np.float32)),    # seam → gold side
+        ( 0.00, np.array(GOLD_TXT,       dtype=np.float32)),    # seam (warm)
+        (+0.04, np.array(GLACIER,        dtype=np.float32)),    # seam → ice side
+        (+0.14, np.array(ICE,            dtype=np.float32)),    # ice starts
+        (+0.52, np.array(ICE,            dtype=np.float32)),    # ice continues
+        (+0.78, np.array(GLACIER,        dtype=np.float32)),    # glacier outer
+        (+1.00, np.array([ 42,  72,  75], dtype=np.float32)),  # outer shadow
+    ]
+
+    color_arr = np.zeros((H, W, 3), dtype=np.float32)
+    for i in range(len(colour_stops) - 1):
+        d0, c0 = colour_stops[i]
+        d1, c1 = colour_stops[i + 1]
+        in_seg = (D_n >= d0) & (D_n < d1)
+        frac   = np.clip((D_n - d0) / (d1 - d0), 0, 1)
+        for ch in range(3):
+            color_arr[:, :, ch] += in_seg * (c0[ch] + (c1[ch] - c0[ch]) * frac)
+
+    # Handle the last stop boundary
+    last_mask = (D_n >= colour_stops[-1][0])
+    color_arr += last_mask[..., None] * colour_stops[-1][1]
+
+    # ── internal glow: bright hot cores within each band ──────────────────────
+    gold_glow = np.exp(-0.5 * ((D_n - (-0.50)) / 0.28) ** 2)
+    ice_glow  = np.exp(-0.5 * ((D_n - (+0.34)) / 0.25) ** 2)
+    seam_glow = np.exp(-0.5 * (D_n / 0.04) ** 2)
+
+    color_arr += gold_glow[..., None] * np.array([55, 32,  6], dtype=np.float32)
+    color_arr += ice_glow[ ..., None] * np.array([ 5, 30, 50], dtype=np.float32)
+    color_arr += seam_glow[..., None] * np.array([30, 28, 20], dtype=np.float32)
+
+    color_arr = np.clip(color_arr, 0, 255)
+
+    # ── assemble RGBA ─────────────────────────────────────────────────────────
+    rgba = np.zeros((H, W, 4), dtype=np.uint8)
+    rgba[:, :, :3] = color_arr.astype(np.uint8)
+    rgba[:, :,  3] = (alpha_f * 255).clip(0, 255).astype(np.uint8)
+
+    trail_img = Image.fromarray(rgba, 'RGBA')
+    # Minimal anti-alias blur only (keeps bands crisp)
+    trail_img = trail_img.filter(ImageFilter.GaussianBlur(radius=1.2))
+    canvas.alpha_composite(trail_img)
+
+
+def draw_trail_glow(canvas):
+    """Ambient glow behind the entire ribbon."""
+    N    = 200
+    step = TRAIL_LEN / N
+    gl   = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    gd   = ImageDraw.Draw(gl)
+    for i in range(N):
+        t   = i / N
+        pt0 = (P_TAIL[0] + TRAIL_U[0] * t * TRAIL_LEN,
+               P_TAIL[1] + TRAIL_U[1] * t * TRAIL_LEN)
+        pt1 = (P_TAIL[0] + TRAIL_U[0] * (t + 1/N) * TRAIL_LEN,
+               P_TAIL[1] + TRAIL_U[1] * (t + 1/N) * TRAIL_LEN)
+        w   = max(4, int(340 * (0.08 + 0.92 * (1 - t))))
+        gd.line([pt0, pt1], fill=(*lerp(GLACIER, ICE, 0.4), 18), width=w)
+    gl = gl.filter(ImageFilter.GaussianBlur(radius=44))
+    canvas.alpha_composite(gl)
+
+
+# ── solid 5-pointed star ─────────────────────────────────────────────────────
+def five_star(cx, cy, r_out, r_in):
+    pts = []
+    for k in range(10):
+        a = math.pi / 5 * k - math.pi / 2
+        r = r_out if k % 2 == 0 else r_in
+        pts.append((cx + r * math.cos(a), cy + r * math.sin(a)))
+    return pts
+
+
+def draw_star(canvas, cx, cy):
+    R  = 100
+    Ri = int(R * 0.382)
+
+    # Soft but restrained glow (one pass, moderate opacity)
+    glow = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    gd   = ImageDraw.Draw(glow)
+    gd.ellipse([cx - R*1.8, cy - R*1.8, cx + R*1.8, cy + R*1.8],
+               fill=(*GOLD_ACC, 60))
+    gd.ellipse([cx - R*1.2, cy - R*1.2, cx + R*1.2, cy + R*1.2],
+               fill=(*GOLD_75,  90))
+    glow = glow.filter(ImageFilter.GaussianBlur(radius=R * 0.55))
+    canvas.alpha_composite(glow)
+
+    # Star body — dark base + highlight gradient
+    sl = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    sd = ImageDraw.Draw(sl)
+
+    # Shadow/base fill
+    sd.polygon(five_star(cx, cy, R, Ri), fill=(*GOLD_0, 255))
+
+    # Mid highlight
+    sd.polygon(five_star(cx, cy - R*0.05, int(R*0.92), int(Ri*0.92)),
+               fill=(*GOLD_45, 255))
+
+    # Bright face
+    sd.polygon(five_star(cx, cy - R*0.10, int(R*0.80), int(Ri*0.80)),
+               fill=(*GOLD_75, 255))
+
+    # Specular highlight (upper-left tip area)
+    sd.polygon(five_star(cx - R*0.06, cy - R*0.14, int(R*0.62), int(Ri*0.62)),
+               fill=(*GOLD_TXT, 255))
+
+    canvas.alpha_composite(sl)
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 def render():
     # 1 ── background ──────────────────────────────────────────────────────────
-    arr = np.zeros((H, W, 3), dtype=np.uint8)
-    cx_bg, cy_bg = W * 0.55, H * 0.38
-    for y in range(H):
-        for x in range(W):
-            d = math.sqrt((x - cx_bg)**2 + (y - cy_bg)**2) / (W * 0.72)
-            t = max(0.0, min(1.0, 1.0 - d * 0.88))
-            arr[y, x] = lerp(NIGHT, SLATE, t * 0.45)
+    ys = np.arange(H, dtype=np.float32)
+    xs = np.arange(W, dtype=np.float32)
+    XX, YY = np.meshgrid(xs, ys)
+    t_bg = np.clip((XX / W) * 0.25 + (YY / H) * 0.25, 0, 1)
+    arr  = np.zeros((H, W, 3), dtype=np.uint8)
+    for c in range(3):
+        arr[:, :, c] = (NIGHT[c] + (SLATE[c] - NIGHT[c]) * t_bg * 0.45).astype(np.uint8)
     canvas = Image.fromarray(arr, 'RGB').convert('RGBA')
 
-    # 2 ── build arc geometry ───────────────────────────────────────────────────
-    spine   = arc_spine(N)
-    normals = arc_normals(spine)
+    # 2 ── ambient glow behind trail ───────────────────────────────────────────
+    draw_trail_glow(canvas)
 
-    # Taper: each segment fades in opacity toward the comet head (t→1)
-    # We also taper the stripe widths from thick-at-tail to thin-at-head
+    # 3 ── crisp two-band trail ────────────────────────────────────────────────
+    draw_trail(canvas)
 
-    # ribbon band definitions: (offset_px, width_px, color_fn, base_alpha, blur)
-    # offset along outward normal; positive = "above" the arc
-    BANDS = [
-        # outer glacier halo — widest, most diffuse
-        (+80, 60, lambda t: GLACIER,                           0.58, 6.0),
-        (+58, 44, lambda t: GLACIER,                           0.88, 4.0),
-        # ice stripe — vibrant teal
-        (+34, 36, lambda t: ICE,                               0.95, 3.0),
-        (+16, 28, lambda t: ICE,                               1.00, 2.5),
-        # gold transition band
-        (+2,  24, lambda t: lerp(ICE, GOLD_45, min(t*1.4,1)), 1.00, 2.0),
-        # gold body
-        (-14, 20, lambda t: trader_gold(t),                    1.00, 1.8),
-        (-27, 16, lambda t: lerp(GOLD_45, GOLD_75, t),         1.00, 1.5),
-        # bright core
-        (-38, 10, lambda t: lerp(GOLD_75, GOLD_TXT, t*0.8),   1.00, 1.2),
-        (-45,  5, lambda t: lerp(GOLD_TXT, WHITE, t*0.6),      1.00, 0.8),
-    ]
-
-    # 3 ── wide outer glow composited BEFORE the bands ────────────────────────
-    glow_layer = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-    sub_spine  = spine[::3]
-    gd         = ImageDraw.Draw(glow_layer)
-    for i in range(len(sub_spine) - 1):
-        t_val = i / max(len(sub_spine) - 1, 1)
-        t_inv = 1 - t_val
-        w   = max(4, int(200 * (0.12 + 0.88 * t_inv)))
-        col = (*lerp(GLACIER, ICE, t_val * 0.6), 28)
-        gd.line([sub_spine[i], sub_spine[i+1]], fill=col, width=w)
-    glow_layer = glow_layer.filter(ImageFilter.GaussianBlur(radius=38))
-    canvas.alpha_composite(glow_layer)
-
-    # For each band, draw on a temporary layer then blur+composite
-    for offset, base_w, color_fn, base_alpha, blur_r in BANDS:
-        layer   = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-        shifted = offset_polyline(spine, normals, offset)
-
-        sub   = shifted[::2]
-        sub_n = max(len(sub) - 1, 1)
-
-        d = ImageDraw.Draw(layer)
-        for i in range(len(sub) - 1):
-            t_val = i / sub_n
-            t_inv = 1 - t_val
-            # taper: full width at tail → 15 % at head
-            w   = max(2, int(base_w * (0.15 + 0.85 * t_inv)))
-            a   = int(base_alpha * 255)
-            col = (*color_fn(t_val), a)
-            d.line([sub[i], sub[i+1]], fill=col, width=w)
-
-        layer = layer.filter(ImageFilter.GaussianBlur(radius=blur_r))
-        canvas.alpha_composite(layer)
-
-    # 4 ── comet head sparkle ──────────────────────────────────────────────────
-    hx, hy = bezier(1.0, ARC)
-    draw_sparkle(canvas, hx, hy, r_outer=110, r_inner=28, spikes=4,
-                 color=GOLD_75, glow_color=GOLD_ACC)
-    # bright centre flash
-    sx, sy = bezier(0.978, ARC)
-    draw_sparkle(canvas, sx, sy, r_outer=36, r_inner=10, spikes=4,
-                 color=WHITE, glow_color=GOLD_TXT)
+    # 4 ── solid star at head ──────────────────────────────────────────────────
+    draw_star(canvas, float(P_HEAD[0]), float(P_HEAD[1]))
 
     # 5 ── text ────────────────────────────────────────────────────────────────
     font_lg = load_font(152, weight=800)
 
-    text_cx = W * 0.50
-    text_cy = H * 0.715
+    text_cx = W * 0.46
+    text_cy = H * 0.71
 
-    # text bloom
+    # Subtle bloom
     bloom = Image.new('RGBA', (W, H), (0, 0, 0, 0))
     bd    = ImageDraw.Draw(bloom)
-    bd.text((text_cx, text_cy - 78), "THE MORE",   font=font_lg, fill=(*GOLD_ACC, 50), anchor="mm")
-    bd.text((text_cx, text_cy + 78), "YOU KNOW",   font=font_lg, fill=(*GOLD_ACC, 50), anchor="mm")
-    bloom = bloom.filter(ImageFilter.GaussianBlur(radius=26))
+    bd.text((text_cx, text_cy - 80), "THE MORE", font=font_lg,
+            fill=(*GOLD_ACC, 40), anchor="mm")
+    bd.text((text_cx, text_cy + 80), "YOU KNOW", font=font_lg,
+            fill=(*GOLD_ACC, 40), anchor="mm")
+    bloom = bloom.filter(ImageFilter.GaussianBlur(radius=22))
     canvas.alpha_composite(bloom)
 
-    # line 1
-    gradient_text(canvas, "THE MORE", font_lg, text_cx, text_cy - 78, GOLD_TXT, GOLD_ACC)
-    # line 2
-    gradient_text(canvas, "YOU KNOW", font_lg, text_cx, text_cy + 78, GOLD_ACC, GOLD_TXT)
+    gradient_text(canvas, "THE MORE", font_lg, text_cx, text_cy - 80, GOLD_TXT, GOLD_ACC)
+    gradient_text(canvas, "YOU KNOW", font_lg, text_cx, text_cy + 80, GOLD_ACC, GOLD_TXT)
 
-    # divider rule
-    rule_w = 580
-    rd = ImageDraw.Draw(canvas)
-    rd.line([(text_cx - rule_w/2, text_cy), (text_cx + rule_w/2, text_cy)],
-            fill=(*ICE, 160), width=2)
+    ImageDraw.Draw(canvas).line(
+        [(text_cx - 560/2, text_cy), (text_cx + 560/2, text_cy)],
+        fill=(*ICE, 145), width=2)
 
     # 6 ── "T" logo ────────────────────────────────────────────────────────────
     logo_font = load_font(96, weight=900)
     lx, ly    = 72, 56
-
-    logo_bloom = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-    ImageDraw.Draw(logo_bloom).text((lx + 32, ly + 48), "T",
-                                    font=logo_font, fill=(*GOLD_ACC, 100), anchor="mm")
-    logo_bloom = logo_bloom.filter(ImageFilter.GaussianBlur(radius=18))
-    canvas.alpha_composite(logo_bloom)
-
+    lb = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(lb).text((lx + 32, ly + 48), "T",
+                            font=logo_font, fill=(*GOLD_ACC, 90), anchor="mm")
+    lb = lb.filter(ImageFilter.GaussianBlur(radius=16))
+    canvas.alpha_composite(lb)
     gradient_text(canvas, "T", logo_font, lx + 32, ly + 48, GOLD_TXT, GOLD_ACC)
 
     # 7 ── vignette ────────────────────────────────────────────────────────────
-    vig_arr = np.zeros((H, W, 4), dtype=np.uint8)
-    for y in range(H):
-        for x in range(W):
-            ex = min(x, W - 1 - x) / (W * 0.12)
-            ey = min(y, H - 1 - y) / (H * 0.12)
-            e  = min(ex, ey, 1.0)
-            a  = int((1 - e) * 140)
-            if a > 0:
-                vig_arr[y, x] = (0, 0, 0, a)
-    vig = Image.fromarray(vig_arr, 'RGBA')
-    canvas.alpha_composite(vig)
+    ex = np.minimum(XX, W - 1 - XX) / (W * 0.12)
+    ey = np.minimum(YY, H - 1 - YY) / (H * 0.12)
+    va = ((1.0 - np.minimum(np.minimum(ex, ey), 1.0)) * 145).clip(0, 255).astype(np.uint8)
+    vig = np.zeros((H, W, 4), dtype=np.uint8)
+    vig[:, :, 3] = va
+    canvas.alpha_composite(Image.fromarray(vig, 'RGBA'))
 
     # 8 ── export ──────────────────────────────────────────────────────────────
     canvas.convert('RGB').save(OUT, 'PNG', optimize=True)
