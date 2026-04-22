@@ -115,22 +115,28 @@ def draw_trail(canvas):
     T_n = T / length                     # [0, 1]
 
     # Quadratic taper: stays wide through most of trail, tapers sharply near head
-    HW_TAIL, HW_HEAD = 185.0, 5.0
+    HW_TAIL, HW_HEAD = 120.0, 5.0
     t_sq   = np.clip(T_n, 0, 1) ** 2
     half_w = HW_TAIL + (HW_HEAD - HW_TAIL) * t_sq
 
     D_n = D / (half_w + 1e-6)           # normalised perp, [-1, +1]
 
     # ── alpha mask ────────────────────────────────────────────────────────────
-    in_trail = (T_n >= 0) & (T_n <= 1.0) & (np.abs(D_n) <= 1.0)
+    in_trail = (T_n >= 0) & (T_n <= 1.0) & (np.abs(D_n) <= 1.2)
 
-    # Tail fade (0→5%), head fade dissolves over last 20% — gaussian dropoff
+    # Tail fade (0→5%), head dissolves over last 20%
     tail_fade = np.clip(T_n / 0.05, 0, 1)
     head_fade = np.where(T_n < 0.80, 1.0,
                          np.exp(-((T_n - 0.80) / 0.10) ** 2))
-    # Smooth outer edges of ribbon
-    edge = np.clip((1.0 - np.abs(D_n)) / 0.09, 0, 1)
-    alpha_f = in_trail.astype(np.float32) * tail_fade * head_fade * edge
+
+    # Gaussian cross-section: bright at the two band centres, fades to edges.
+    # This makes the ribbon feel like glowing light, not a painted stripe.
+    # Band centres at D_n ≈ -0.42 (gold) and +0.35 (ice)
+    gold_env = np.exp(-0.5 * ((D_n - (-0.42)) / 0.46) ** 2)
+    ice_env  = np.exp(-0.5 * ((D_n - ( 0.35)) / 0.42) ** 2)
+    envelope = np.clip(np.maximum(gold_env, ice_env) * 0.95, 0, 1)
+
+    alpha_f = in_trail.astype(np.float32) * tail_fade * head_fade * envelope
 
     # ── colour: two main bands + thin bright seam ─────────────────────────────
     #
