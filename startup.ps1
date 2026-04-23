@@ -70,7 +70,7 @@ if ($chromePath) {
         "https://access.paylocity.com/",
         "https://x.com/home",
         "https://www.facebook.com/groups/TopstepCommunity/",
-        "https://app.sproutsocial.com/login",
+        "https://topstep-social.vercel.app/dashboard",
         "https://www.notion.so/dd6ff140ea214118a749edc4b7392086?v=5769269863344975b8ee4dec5fc8276d",
         "https://docs.google.com/document/d/18EDky0v2gBvXwKeSaA-m6FnBCS840FMSqR5ufEKW5bw/edit?tab=t.2uv8x7eqvp1o",
         "https://dashboard.topstep.com/dashboard/admin/users?filterMode=simple&filterValue="
