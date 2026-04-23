@@ -77,6 +77,74 @@ def gradient_text(canvas, text, font, cx, cy, c_left, c_right):
     canvas.alpha_composite(grad)
 
 
+def draw_diagonal_text(canvas):
+    """Render 'THE MORE YOU KNOW' running along the trail direction."""
+    # Trail angle: how many degrees the trail tilts upward from horizontal
+    angle_deg = math.degrees(math.atan2(
+        -(P_HEAD[1] - P_TAIL[1]),   # negate: screen-y is inverted
+         P_HEAD[0] - P_TAIL[0]))    # ≈ 28.7°
+
+    font = load_font(118, weight=800)
+    text = "THE MORE YOU KNOW"
+
+    # ── measure text ─────────────────────────────────────────────────────────
+    tmp  = Image.new('RGBA', (3000, 400), (0, 0, 0, 0))
+    bbox = ImageDraw.Draw(tmp).textbbox((0, 0), text, font=font, anchor="lt")
+    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    pad = 90   # padding so rotation doesn't clip descenders/ascenders
+
+    TC_W, TC_H = tw + pad * 2, th + pad * 2
+    tc   = Image.new('RGBA', (TC_W, TC_H), (0, 0, 0, 0))
+    tx_  = pad
+    ty_  = pad - bbox[1]
+
+    # ── shadow ────────────────────────────────────────────────────────────────
+    sh = Image.new('RGBA', (TC_W, TC_H), (0, 0, 0, 0))
+    ImageDraw.Draw(sh).text((tx_ + 4, ty_ + 8), text,
+                            font=font, fill=(*NIGHT, 220), anchor="lt")
+    sh = sh.filter(ImageFilter.GaussianBlur(radius=10))
+    tc.alpha_composite(sh)
+
+    # ── gold gradient fill ────────────────────────────────────────────────────
+    mask = Image.new('L', (TC_W, TC_H), 0)
+    ImageDraw.Draw(mask).text((tx_, ty_), text, font=font, fill=255, anchor="lt")
+
+    grad = Image.new('RGBA', (TC_W, TC_H), (0, 0, 0, 0))
+    gd   = ImageDraw.Draw(grad)
+    for px in range(tx_, tx_ + tw + 2):
+        t   = (px - tx_) / max(tw, 1)
+        col = lerp(GOLD_ACC, GOLD_TXT, t)   # darker at tail → lighter near star
+        gd.line([(px, 0), (px, TC_H)], fill=(*col, 255))
+    grad.putalpha(mask)
+    tc.alpha_composite(grad)
+
+    # ── rotate to match trail angle ───────────────────────────────────────────
+    rotated = tc.rotate(angle_deg, expand=True, resample=Image.BICUBIC)
+
+    # ── position: centre of text sits at ~54 % along the trail ───────────────
+    t_c = 0.47
+    cx  = P_TAIL[0] + TRAIL_U[0] * t_c * TRAIL_LEN
+    cy  = P_TAIL[1] + TRAIL_U[1] * t_c * TRAIL_LEN
+
+    paste_x = int(cx - rotated.width  / 2)
+    paste_y = int(cy - rotated.height / 2)
+
+    # Composite via a full-canvas intermediate so off-edge pixels are ignored
+    layer = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    # Crop the rotated image to the canvas area before compositing
+    src_x0 = max(0, -paste_x);  src_y0 = max(0, -paste_y)
+    dst_x0 = max(0,  paste_x);  dst_y0 = max(0,  paste_y)
+    dst_x1 = min(W,  paste_x + rotated.width)
+    dst_y1 = min(H,  paste_y + rotated.height)
+    src_x1 = src_x0 + (dst_x1 - dst_x0)
+    src_y1 = src_y0 + (dst_y1 - dst_y0)
+    if dst_x1 > dst_x0 and dst_y1 > dst_y0:
+        layer.alpha_composite(
+            rotated.crop((src_x0, src_y0, src_x1, src_y1)),
+            (dst_x0, dst_y0))
+    canvas.alpha_composite(layer)
+
+
 # ── trail geometry ────────────────────────────────────────────────────────────
 # tail bleeds off lower-left; head is where the star sits
 P_TAIL = np.array([-120.0, 920.0])
@@ -276,32 +344,8 @@ def render():
     # 4 ── solid star at head ──────────────────────────────────────────────────
     draw_star(canvas, float(P_HEAD[0]), float(P_HEAD[1]))
 
-    # 5 ── text ────────────────────────────────────────────────────────────────
-    font_lg = load_font(152, weight=800)
-
-    text_cx = W * 0.46
-    text_cy = H * 0.71
-
-    # Subtle bloom
-    bloom = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-    bd    = ImageDraw.Draw(bloom)
-    bd.text((text_cx, text_cy - 80), "THE MORE", font=font_lg,
-            fill=(*GOLD_ACC, 40), anchor="mm")
-    bd.text((text_cx, text_cy + 80), "YOU KNOW", font=font_lg,
-            fill=(*GOLD_ACC, 40), anchor="mm")
-    bloom = bloom.filter(ImageFilter.GaussianBlur(radius=22))
-    canvas.alpha_composite(bloom)
-
-    # Drop shadows — make text readable against the gold trail stripe
-    text_shadow(canvas, "THE MORE", font_lg, text_cx, text_cy - 80, dy=6, blur=7, alpha=220)
-    text_shadow(canvas, "YOU KNOW", font_lg, text_cx, text_cy + 80, dy=6, blur=7, alpha=220)
-
-    gradient_text(canvas, "THE MORE", font_lg, text_cx, text_cy - 80, GOLD_TXT, GOLD_ACC)
-    gradient_text(canvas, "YOU KNOW", font_lg, text_cx, text_cy + 80, GOLD_ACC, GOLD_TXT)
-
-    ImageDraw.Draw(canvas).line(
-        [(text_cx - 560/2, text_cy), (text_cx + 560/2, text_cy)],
-        fill=(*ICE, 145), width=2)
+    # 5 ── diagonal headline text along the trail ─────────────────────────────
+    draw_diagonal_text(canvas)
 
     # 6 ── "T" logo ────────────────────────────────────────────────────────────
     logo_font = load_font(96, weight=900)
