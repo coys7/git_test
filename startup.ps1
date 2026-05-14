@@ -1,6 +1,6 @@
 ﻿﻿# startup.ps1
 # Morning startup automation. Triggered by Task Scheduler on login or screen unlock.
-# Opens Slack, Discord, Chrome (7 tabs), and Obsidian.
+# Opens Slack, Discord, and Chrome (7 tabs).
 
 $RepoDir = if ($PSScriptRoot) { $PSScriptRoot } else { $pwd.Path }
 
@@ -70,29 +70,14 @@ if ($chromePath) {
         "https://access.paylocity.com/",
         "https://x.com/home",
         "https://www.facebook.com/groups/TopstepCommunity/",
-        "https://topstep-social.vercel.app/dashboard",
-        "https://www.notion.so/dd6ff140ea214118a749edc4b7392086?v=5769269863344975b8ee4dec5fc8276d",
-        "https://docs.google.com/document/d/18EDky0v2gBvXwKeSaA-m6FnBCS840FMSqR5ufEKW5bw/edit?tab=t.2uv8x7eqvp1o",
-        "https://dashboard.topstep.com/dashboard/admin/users?filterMode=simple&filterValue="
+        "https://www.reddit.com/r/TopStepX/",
+        "https://www.reddit.com/r/TopstepCommunity/",
+        "https://admin.topstep.com/dashboard/admin/users?filterMode=simple&filterValue=",
+        "https://social-monitor.topstep.com/dashboard"
     )
     # Array form of -ArgumentList correctly quotes each URL as a separate argument.
     # --new-window forces a fresh window even if Chrome is already running.
     Start-Process $chromePath -ArgumentList (@("--new-window") + $tabs)
 } else {
     Write-Warning "Google Chrome not found. Skipping browser tabs."
-}
-
-# ---------------------------------------------------------------------------
-# 4. Open Obsidian
-# ---------------------------------------------------------------------------
-$obsidianCandidates = @(
-    "$env:LOCALAPPDATA\Programs\Obsidian\Obsidian.exe",
-    "$env:LOCALAPPDATA\Obsidian\Obsidian.exe",
-    "$env:PROGRAMFILES\Obsidian\Obsidian.exe"
-)
-$obsidianPath = $obsidianCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
-if ($obsidianPath) {
-    Start-Process $obsidianPath
-} else {
-    Write-Warning "Obsidian not found. Checked: $($obsidianCandidates -join ', ')"
 }
