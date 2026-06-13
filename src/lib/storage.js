@@ -8,7 +8,7 @@ const KEYS = {
   NOTES: 'lectio_notes'
 }
 
-const DEFAULT_CATEGORIES = ['philosophy', 'theology', 'political-philosophy', 'history', 'niche-history', 'economics']
+const DEFAULT_CATEGORIES = ['philosophy', 'theology', 'history', 'niche-history', 'economics', 'science']
 
 export function getToday() {
   return new Date().toISOString().split('T')[0]
@@ -157,6 +157,10 @@ export function recordLessonCompleted() {
 }
 
 // ===== QUIZ =====
+
+export function clearTodayQuiz() {
+  localStorage.removeItem(KEYS.TODAY_QUIZ)
+}
 
 export function getTodayQuiz() {
   try {

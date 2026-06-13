@@ -4,6 +4,7 @@ import {
   getTodayLesson,
   setTodayLesson,
   clearTodayLesson,
+  clearTodayQuiz,
   getActiveCategories,
   getCompletedTopics,
   addCompletedTopic,
@@ -54,6 +55,7 @@ export function useLesson() {
 
   const reload = useCallback(() => {
     clearTodayLesson()
+    clearTodayQuiz()
     loadLesson(true)
   }, [loadLesson])
 

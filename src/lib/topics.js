@@ -10,11 +10,6 @@ export const CATEGORIES = [
     description: 'Early church, councils, reformation, apologetics, church fathers'
   },
   {
-    id: 'political-philosophy',
-    name: 'Political Philosophy',
-    description: 'Plato, Locke, Burke, Tocqueville, and the great political thinkers'
-  },
-  {
     id: 'history',
     name: 'General History',
     description: 'Ancient, Roman, Medieval, Renaissance, Early Modern, Modern'
@@ -28,6 +23,11 @@ export const CATEGORIES = [
     id: 'economics',
     name: 'Economics',
     description: 'Capitalism, communism, feudalism, key thinkers, and how economies actually work'
+  },
+  {
+    id: 'science',
+    name: 'Science',
+    description: 'Black holes, quantum physics, the brain, genetics, space, and how the universe works'
   }
 ]
 
@@ -183,6 +183,36 @@ const TOPIC_POOLS = {
     'colonialism as an economic project',
     'the role of property rights in economic development',
     'the Green Revolution and the economics of food'
+  ],
+  science: [
+    'black holes — what they are and what happens inside one',
+    'the James Webb Space Telescope and what it has revealed',
+    'quantum entanglement and what it means for reality',
+    'CRISPR gene editing and the future of biology',
+    'the theory of general relativity in plain language',
+    'dark matter and dark energy — what we know and don\'t',
+    'the human microbiome and its role in health',
+    'neuroplasticity — how the brain rewires itself',
+    'the science of red light therapy',
+    'epigenetics — how environment shapes gene expression',
+    'the Big Bang and the first seconds of the universe',
+    'the hard problem of consciousness',
+    'mitochondria and the origins of complex life',
+    'the gut-brain axis',
+    'sleep science — what actually happens when you sleep',
+    'nuclear fusion and the quest for limitless energy',
+    'the multiverse — science or speculation?',
+    'how psychedelics affect the brain',
+    'telomeres, aging, and the biology of getting old',
+    'the placebo effect and the power of expectation',
+    'evolution by natural selection — Darwin\'s idea unpacked',
+    'the immune system — a primer',
+    'string theory and the search for a theory of everything',
+    'how vaccines actually work',
+    'the Fermi Paradox — where is everybody?',
+    'the speed of light and why nothing can exceed it',
+    'DNA — the molecule that runs everything',
+    'the science of addiction and the brain\'s reward system'
   ]
 }
 
