@@ -127,6 +127,23 @@ export default function Calendar() {
               <p className="cal-detail-status">
                 {selectedEntry.completed ? 'Completed' : 'Viewed'}
               </p>
+              {selectedEntry.body && (
+                <div className="archive-lesson">
+                  <div className="lesson-body">
+                    {selectedEntry.body.split('\n\n').filter(Boolean).map((para, i) => (
+                      <p key={i}>{para}</p>
+                    ))}
+                  </div>
+                  {selectedEntry.reflections?.length > 0 && (
+                    <div className="reflections" aria-label="Reflection questions" style={{ marginTop: '1.25rem' }}>
+                      <p className="reflections-label">Reflect</p>
+                      {selectedEntry.reflections.map((q, i) => (
+                        <p key={i} className="reflection-question">{q}</p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </>
           ) : (
             <p className="cal-detail-empty">No lesson on this day.</p>

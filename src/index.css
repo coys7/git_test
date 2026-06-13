@@ -854,6 +854,120 @@ main {
   font-style: italic;
 }
 
+/* ===== NOTES ===== */
+.notes-section {
+  margin-top: 2rem;
+}
+
+.notes-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.8rem;
+}
+
+textarea.notes-input {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--border-soft);
+  border-radius: 3px;
+  background: var(--vellum-dark);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text);
+  resize: vertical;
+  min-height: 80px;
+  padding: 0.75rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+textarea.notes-input:focus {
+  border-color: var(--gold);
+  outline: none;
+}
+
+/* ===== READING TIME ===== */
+.lesson-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.lesson-meta .category-tag {
+  margin-bottom: 0;
+}
+
+.reading-time-sep {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+.reading-time {
+  display: inline-block;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+/* ===== SHARE BUTTON ===== */
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.62rem 0.75rem;
+}
+
+/* ===== REMINDER ===== */
+.reminder-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-soft);
+  margin-bottom: 1.5rem;
+}
+
+.reminder-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 0.3rem;
+}
+
+.reminder-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-top: 0.5rem;
+}
+
+.reminder-status {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.reminder-status.active {
+  color: var(--success);
+}
+
+/* ===== ARCHIVE LESSON ===== */
+.archive-lesson {
+  padding-top: 1.5rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--border-soft);
+  animation: deeperIn 0.3s ease both;
+}
+
+.archive-lesson .lesson-body {
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (min-width: 480px) {
   :root {

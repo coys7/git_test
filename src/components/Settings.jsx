@@ -1,9 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CATEGORIES } from '../lib/topics'
 import { getActiveCategories, setActiveCategories } from '../lib/storage'
+import { enableReminder, disableReminder, getReminderStatus } from '../lib/reminder'
 
 export default function Settings({ onClose }) {
   const [active, setActive] = useState(() => getActiveCategories())
+  const [reminderStatus, setReminderStatus] = useState('inactive')
+  const [reminderMessage, setReminderMessage] = useState('')
+
+  useEffect(() => {
+    getReminderStatus().then(setReminderStatus)
+  }, [])
 
   function toggle(id) {
     setActive(prev => {
@@ -18,6 +25,29 @@ export default function Settings({ onClose }) {
   function save() {
     setActiveCategories(active)
     onClose()
+  }
+
+  async function handleEnableReminder() {
+    setReminderMessage('')
+    const result = await enableReminder()
+    if (result.ok) {
+      setReminderStatus('active')
+      setReminderMessage('')
+    } else {
+      setReminderMessage(result.reason)
+    }
+  }
+
+  async function handleDisableReminder() {
+    await disableReminder()
+    setReminderStatus('inactive')
+    setReminderMessage('')
+  }
+
+  function statusLabel() {
+    if (reminderStatus === 'active') return 'Active'
+    if (reminderStatus === 'unsupported') return 'Not supported on this device'
+    return 'Inactive'
   }
 
   return (
@@ -51,6 +81,34 @@ export default function Settings({ onClose }) {
             </button>
           )
         })}
+      </div>
+
+      <div className="reminder-section">
+        <p className="reminder-title">Daily Reminder</p>
+        <p className={`reminder-status${reminderStatus === 'active' ? ' active' : ''}`}>
+          {statusLabel()}
+        </p>
+        {reminderStatus === 'active' ? (
+          <button className="btn-secondary" onClick={handleDisableReminder}>
+            Disable reminder
+          </button>
+        ) : (
+          <button
+            className="btn-secondary"
+            onClick={handleEnableReminder}
+            disabled={reminderStatus === 'unsupported'}
+          >
+            Enable daily reminder
+          </button>
+        )}
+        {reminderMessage && (
+          <p className="reminder-note" style={{ marginTop: '0.6rem', color: 'var(--text-muted)' }}>
+            {reminderMessage}
+          </p>
+        )}
+        <p className="reminder-note">
+          Works on Chrome Android with Lectio installed on your home screen. Timing is approximate.
+        </p>
       </div>
 
       <button className="btn-primary" onClick={save}>Save &amp; close</button>

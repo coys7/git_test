@@ -1,16 +1,37 @@
 import { useState } from 'react'
 import GoDeeper from './GoDeeper'
 import Quiz from './Quiz'
+import Notes from './Notes'
+import { getToday } from '../lib/storage'
 
 export default function LessonCard({ lesson, loading, error, completed, onComplete, onReload }) {
   const [showDeeper, setShowDeeper] = useState(false)
   const [showQuiz, setShowQuiz] = useState(false)
   const [flash, setFlash] = useState(false)
+  const [shareCopied, setShareCopied] = useState(false)
 
   function handleComplete() {
     onComplete()
     setFlash(true)
     setTimeout(() => setFlash(false), 1800)
+  }
+
+  async function handleShare() {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: lesson.title,
+          text: 'Today I learned: ' + lesson.title,
+          url: window.location.href
+        })
+      } catch {}
+    } else {
+      try {
+        await navigator.clipboard.writeText(lesson.title + '\n\n' + lesson.body)
+      } catch {}
+      setShareCopied(true)
+      setTimeout(() => setShareCopied(false), 1800)
+    }
   }
 
   if (loading) {
@@ -38,10 +59,18 @@ export default function LessonCard({ lesson, loading, error, completed, onComple
 
   if (!lesson) return null
 
+  const wordCount = lesson.body ? lesson.body.split(/\s+/).filter(Boolean).length : 0
+  const readingTime = Math.ceil(wordCount / 200)
+  const today = getToday()
+
   return (
     <div className="lesson-wrapper">
       <article className="lesson-card">
-        <div className="category-tag">{lesson.category}</div>
+        <div className="lesson-meta">
+          <span className="category-tag">{lesson.category}</span>
+          <span className="reading-time-sep" aria-hidden="true">·</span>
+          <span className="reading-time">{readingTime} min read</span>
+        </div>
         <h1 className="lesson-title">{lesson.title}</h1>
         <div className="lesson-divider" aria-hidden="true" />
 
@@ -59,6 +88,8 @@ export default function LessonCard({ lesson, loading, error, completed, onComple
             ))}
           </div>
         )}
+
+        <Notes date={today} />
 
         <div className="lesson-actions">
           {completed ? (
@@ -91,6 +122,20 @@ export default function LessonCard({ lesson, loading, error, completed, onComple
             aria-expanded={showQuiz}
           >
             {showQuiz ? 'Hide quiz' : 'Quiz me'}
+          </button>
+
+          <button
+            className="btn-secondary share-btn"
+            onClick={handleShare}
+            aria-label="Share lesson"
+          >
+            {shareCopied ? 'Copied!' : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                <polyline points="16 6 12 2 8 6" />
+                <line x1="12" y1="2" x2="12" y2="15" />
+              </svg>
+            )}
           </button>
         </div>
       </article>

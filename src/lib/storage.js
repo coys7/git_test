@@ -4,7 +4,8 @@ const KEYS = {
   COMPLETED_TOPICS: 'lectio_completed_topics',
   ACTIVE_CATEGORIES: 'lectio_active_categories',
   HISTORY: 'lectio_history',
-  TODAY_QUIZ: 'lectio_today_quiz'
+  TODAY_QUIZ: 'lectio_today_quiz',
+  NOTES: 'lectio_notes'
 }
 
 const DEFAULT_CATEGORIES = ['philosophy', 'theology', 'political-philosophy', 'history', 'niche-history', 'economics']
@@ -92,8 +93,8 @@ export function getHistory() {
 }
 
 function saveHistory(history) {
-  // Keep last 120 days
-  const trimmed = history.slice(-120)
+  // Keep last 30 entries
+  const trimmed = history.slice(-30)
   localStorage.setItem(KEYS.HISTORY, JSON.stringify(trimmed))
 }
 
@@ -103,8 +104,44 @@ export function recordLessonViewed(lesson) {
   const history = getHistory()
   const existingIndex = history.findIndex(e => e.date === today)
   if (existingIndex !== -1) return // idempotent
-  history.push({ date: today, title: lesson.title, category: lesson.category, completed: false })
+  history.push({
+    date: today,
+    title: lesson.title,
+    category: lesson.category,
+    body: lesson.body || null,
+    reflections: lesson.reflections || null,
+    completed: false
+  })
   saveHistory(history)
+}
+
+// ===== NOTES =====
+
+export function getNoteForDate(date) {
+  try {
+    const stored = localStorage.getItem(KEYS.NOTES)
+    if (!stored) return ''
+    const notes = JSON.parse(stored)
+    return notes[date] || ''
+  } catch {
+    return ''
+  }
+}
+
+export function setNoteForDate(date, text) {
+  try {
+    const stored = localStorage.getItem(KEYS.NOTES)
+    const notes = stored ? JSON.parse(stored) : {}
+    notes[date] = text
+    // Trim entries older than 60 days
+    const cutoff = new Date()
+    cutoff.setDate(cutoff.getDate() - 60)
+    const cutoffStr = cutoff.toISOString().split('T')[0]
+    for (const key of Object.keys(notes)) {
+      if (key < cutoffStr) delete notes[key]
+    }
+    localStorage.setItem(KEYS.NOTES, JSON.stringify(notes))
+  } catch {}
 }
 
 export function recordLessonCompleted() {
