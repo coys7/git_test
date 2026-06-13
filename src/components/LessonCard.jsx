@@ -59,8 +59,8 @@ export default function LessonCard({ lesson, loading, error, completed, onComple
 
   if (!lesson) return null
 
-  const wordCount = lesson.body ? lesson.body.split(/\s+/).filter(Boolean).length : 0
-  const readingTime = Math.ceil(wordCount / 200)
+  const wordCount = [lesson.body, ...(lesson.reflections || [])].join(' ').split(/\s+/).filter(Boolean).length
+  const readingTime = Math.ceil(wordCount / 150)
   const today = getToday()
 
   return (
