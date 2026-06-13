@@ -5,7 +5,7 @@ const KEYS = {
   ACTIVE_CATEGORIES: 'lectio_active_categories'
 }
 
-const DEFAULT_CATEGORIES = ['philosophy', 'theology', 'political-philosophy', 'history', 'niche-history']
+const DEFAULT_CATEGORIES = ['philosophy', 'theology', 'political-philosophy', 'history', 'niche-history', 'economics']
 
 export function getToday() {
   return new Date().toISOString().split('T')[0]

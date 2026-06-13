@@ -4,11 +4,13 @@ import LessonCard from './components/LessonCard'
 import Settings from './components/Settings'
 import { useLesson } from './hooks/useLesson'
 import { useStreak } from './hooks/useStreak'
+import { useDarkMode } from './hooks/useDarkMode'
 
 export default function App() {
   const [view, setView] = useState('lesson')
   const { lesson, loading, error, reload } = useLesson()
   const { streak, completed, complete } = useStreak()
+  const { dark, toggle: toggleDark } = useDarkMode()
 
   function toggleSettings() {
     setView(v => (v === 'settings' ? 'lesson' : 'settings'))
@@ -20,6 +22,8 @@ export default function App() {
         streak={streak.count}
         onSettingsClick={toggleSettings}
         settingsOpen={view === 'settings'}
+        dark={dark}
+        onDarkToggle={toggleDark}
       />
       <main>
         {view === 'settings' ? (

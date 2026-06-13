@@ -21,6 +21,21 @@
   --pad-safe: env(safe-area-inset-bottom, 0px);
 }
 
+[data-theme="dark"] {
+  --ink: #e8e2d5;
+  --ink-soft: #cec8bb;
+  --vellum: #111018;
+  --vellum-dark: #1a1926;
+  --vellum-mid: #1e1d2c;
+  --gold: #c9a840;
+  --gold-light: #d9bc60;
+  --text: #d0cabf;
+  --text-muted: #7a7570;
+  --border: #2e2d3e;
+  --border-soft: #232232;
+  --success: #5a9e6e;
+}
+
 /* ===== RESET ===== */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -41,6 +56,7 @@ body {
   min-height: 100dvh;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 button {
@@ -107,7 +123,7 @@ main {
   letter-spacing: 0.01em;
 }
 
-.settings-btn {
+.icon-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -121,8 +137,8 @@ main {
   line-height: 0;
 }
 
-.settings-btn:hover,
-.settings-btn.active {
+.icon-btn:hover,
+.icon-btn.active {
   color: var(--ink);
 }
 

@@ -23,6 +23,11 @@ export const CATEGORIES = [
     id: 'niche-history',
     name: 'Niche History',
     description: 'Coffee, pirates, spice trade, banking, maps, and forgotten stories'
+  },
+  {
+    id: 'economics',
+    name: 'Economics',
+    description: 'Capitalism, communism, feudalism, key thinkers, and how economies actually work'
   }
 ]
 
@@ -149,6 +154,35 @@ const TOPIC_POOLS = {
     "the Glorious Revolution of 1688",
     "the American founding and its classical republican roots",
     "the Meiji Restoration and Japanese modernization"
+  ],
+  economics: [
+    'Adam Smith and the origins of capitalism',
+    'Karl Marx and the critique of capital',
+    'feudalism and the manorial economy',
+    'mercantilism and the zero-sum world',
+    'the Industrial Revolution and the birth of the factory',
+    'the Great Depression — causes, responses, and legacy',
+    'Keynesian economics and the role of government spending',
+    'the Austrian School: Hayek, Mises, and the price system',
+    'the Bretton Woods system and the postwar economic order',
+    'the stagflation crisis of the 1970s',
+    'the history of money — from commodity to fiat',
+    'the origins of central banking',
+    'the East India Company and the corporation as empire',
+    'the enclosure movement and the creation of the proletariat',
+    'Soviet command economy — how it worked and why it failed',
+    'Maoism and the economics of the Great Leap Forward',
+    'the history of debt and its civilizational consequences',
+    'Ricardo and the theory of comparative advantage',
+    'Malthus and the population trap',
+    'the Chicago School and the monetarist revolution',
+    'the Dutch Golden Age and the first modern economy',
+    'the history of inflation — from Rome to Weimar',
+    'the transatlantic slave trade as an economic system',
+    'Schumpeter and creative destruction',
+    'colonialism as an economic project',
+    'the role of property rights in economic development',
+    'the Green Revolution and the economics of food'
   ]
 }
 
