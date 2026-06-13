@@ -30,6 +30,7 @@ export default function App() {
         dark={dark}
         onDarkToggle={toggleDark}
         onCalendarClick={toggleCalendar}
+        calendarOpen={view === 'calendar'}
       />
       <main>
         {view === 'settings' ? (

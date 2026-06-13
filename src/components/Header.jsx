@@ -1,4 +1,4 @@
-export default function Header({ streak, onSettingsClick, settingsOpen, dark, onDarkToggle, onCalendarClick }) {
+export default function Header({ streak, onSettingsClick, settingsOpen, dark, onDarkToggle, onCalendarClick, calendarOpen }) {
   return (
     <header className="header">
       <div className="header-inner">
@@ -7,9 +7,9 @@ export default function Header({ streak, onSettingsClick, settingsOpen, dark, on
           {streak > 0 && (
             <button
               className="streak streak-btn"
-              title={`${streak}-day streak — view calendar`}
+              title={`${streak}-day streak`}
               onClick={onCalendarClick}
-              aria-label={`${streak}-day streak, open calendar`}
+              aria-label={`${streak}-day streak`}
             >
               <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true">
                 <polygon points="5,0 6.5,3.5 10,4 7.5,6.5 8,10 5,8 2,10 2.5,6.5 0,4 3.5,3.5" />
@@ -17,6 +17,19 @@ export default function Header({ streak, onSettingsClick, settingsOpen, dark, on
               <span>Day {streak}</span>
             </button>
           )}
+
+          <button
+            className={`icon-btn${calendarOpen ? ' active' : ''}`}
+            onClick={onCalendarClick}
+            aria-label={calendarOpen ? 'Close calendar' : 'Open calendar'}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="1" y="2.5" width="14" height="12" rx="2" />
+              <line x1="1" y1="6.5" x2="15" y2="6.5" />
+              <line x1="5" y1="1" x2="5" y2="4" />
+              <line x1="11" y1="1" x2="11" y2="4" />
+            </svg>
+          </button>
 
           <button
             className="icon-btn"
