@@ -2,7 +2,9 @@ const KEYS = {
   TODAY_LESSON: 'lectio_today_lesson',
   STREAK: 'lectio_streak',
   COMPLETED_TOPICS: 'lectio_completed_topics',
-  ACTIVE_CATEGORIES: 'lectio_active_categories'
+  ACTIVE_CATEGORIES: 'lectio_active_categories',
+  HISTORY: 'lectio_history',
+  TODAY_QUIZ: 'lectio_today_quiz'
 }
 
 const DEFAULT_CATEGORIES = ['philosophy', 'theology', 'political-philosophy', 'history', 'niche-history', 'economics']
@@ -76,6 +78,63 @@ export function addCompletedTopic(topic) {
   topics.push(topic)
   if (topics.length > 60) topics.shift()
   localStorage.setItem(KEYS.COMPLETED_TOPICS, JSON.stringify(topics))
+}
+
+// ===== HISTORY =====
+
+export function getHistory() {
+  try {
+    const stored = localStorage.getItem(KEYS.HISTORY)
+    return stored ? JSON.parse(stored) : []
+  } catch {
+    return []
+  }
+}
+
+function saveHistory(history) {
+  // Keep last 120 days
+  const trimmed = history.slice(-120)
+  localStorage.setItem(KEYS.HISTORY, JSON.stringify(trimmed))
+}
+
+export function recordLessonViewed(lesson) {
+  if (!lesson) return
+  const today = getToday()
+  const history = getHistory()
+  const existingIndex = history.findIndex(e => e.date === today)
+  if (existingIndex !== -1) return // idempotent
+  history.push({ date: today, title: lesson.title, category: lesson.category, completed: false })
+  saveHistory(history)
+}
+
+export function recordLessonCompleted() {
+  const today = getToday()
+  const history = getHistory()
+  const existingIndex = history.findIndex(e => e.date === today)
+  if (existingIndex !== -1) {
+    history[existingIndex].completed = true
+  } else {
+    history.push({ date: today, title: '', category: '', completed: true })
+  }
+  saveHistory(history)
+}
+
+// ===== QUIZ =====
+
+export function getTodayQuiz() {
+  try {
+    const stored = localStorage.getItem(KEYS.TODAY_QUIZ)
+    if (!stored) return null
+    const parsed = JSON.parse(stored)
+    if (parsed.date !== getToday()) return null
+    return parsed.quiz
+  } catch {
+    return null
+  }
+}
+
+export function setTodayQuiz(quiz) {
+  localStorage.setItem(KEYS.TODAY_QUIZ, JSON.stringify({ date: getToday(), quiz }))
 }
 
 export function getActiveCategories() {

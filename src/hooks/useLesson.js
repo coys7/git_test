@@ -6,7 +6,8 @@ import {
   clearTodayLesson,
   getActiveCategories,
   getCompletedTopics,
-  addCompletedTopic
+  addCompletedTopic,
+  recordLessonViewed
 } from '../lib/storage'
 import { getRandomActiveCategory, getTopicPrompt } from '../lib/topics'
 
@@ -23,6 +24,7 @@ export function useLesson() {
       const cached = getTodayLesson()
       if (cached) {
         setLesson(cached)
+        recordLessonViewed(cached)
         setLoading(false)
         return
       }
@@ -37,6 +39,7 @@ export function useLesson() {
       const generated = await generateLesson(topicPrompt)
       setTodayLesson(generated)
       if (generated.title) addCompletedTopic(generated.title)
+      recordLessonViewed(generated)
       setLesson(generated)
     } catch (e) {
       setError(e.message)

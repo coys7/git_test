@@ -61,6 +61,23 @@ export async function generateLesson(topicPrompt) {
   return JSON.parse(cleaned)
 }
 
+const QUIZ_SYSTEM_PROMPT = `You are the quiz engine for Lectio, a daily learning app. The user has just read a lesson and you must generate exactly 3 multiple-choice questions to test their comprehension.
+
+Rules:
+- Each question must be clearly answerable from the lesson content.
+- Provide exactly 4 options per question (A, B, C, D).
+- Make distractors plausible but clearly wrong on reflection.
+- The explanation should be 1–2 sentences clarifying why the correct answer is right.
+- Return JSON only in this exact shape, no markdown fences:
+{"questions":[{"q":"...","options":["...","...","...","..."],"answer":0,"explanation":"..."},{"q":"...","options":["...","...","...","..."],"answer":0,"explanation":"..."},{"q":"...","options":["...","...","...","..."],"answer":0,"explanation":"..."}]}`
+
+export async function generateQuiz(lesson) {
+  const userMessage = `Generate a quiz for this lesson:\n\nTitle: ${lesson.title}\nCategory: ${lesson.category}\n\n${lesson.body}`
+  const text = await callClaude(QUIZ_SYSTEM_PROMPT, userMessage, 1024)
+  const cleaned = text.replace(/^```json\s*|\s*```$/g, '').trim()
+  return JSON.parse(cleaned)
+}
+
 export async function generateDeeper(lesson) {
   const userMessage = `The user just finished this lesson:\n\nTitle: ${lesson.title}\nCategory: ${lesson.category}\n\nLesson body:\n${lesson.body}\n\nGo deeper.`
   return callClaude(DEEPER_SYSTEM_PROMPT, userMessage, 800)

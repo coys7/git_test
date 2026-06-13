@@ -1,16 +1,21 @@
-export default function Header({ streak, onSettingsClick, settingsOpen, dark, onDarkToggle }) {
+export default function Header({ streak, onSettingsClick, settingsOpen, dark, onDarkToggle, onCalendarClick }) {
   return (
     <header className="header">
       <div className="header-inner">
         <span className="wordmark">Lectio</span>
         <div className="header-right">
           {streak > 0 && (
-            <div className="streak" title={`${streak}-day streak`}>
+            <button
+              className="streak streak-btn"
+              title={`${streak}-day streak — view calendar`}
+              onClick={onCalendarClick}
+              aria-label={`${streak}-day streak, open calendar`}
+            >
               <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true">
                 <polygon points="5,0 6.5,3.5 10,4 7.5,6.5 8,10 5,8 2,10 2.5,6.5 0,4 3.5,3.5" />
               </svg>
               <span>Day {streak}</span>
-            </div>
+            </button>
           )}
 
           <button

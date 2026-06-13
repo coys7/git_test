@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import GoDeeper from './GoDeeper'
+import Quiz from './Quiz'
 
 export default function LessonCard({ lesson, loading, error, completed, onComplete, onReload }) {
   const [showDeeper, setShowDeeper] = useState(false)
+  const [showQuiz, setShowQuiz] = useState(false)
   const [flash, setFlash] = useState(false)
 
   function handleComplete() {
@@ -82,9 +84,18 @@ export default function LessonCard({ lesson, loading, error, completed, onComple
           >
             {showDeeper ? 'Show less' : 'Go deeper →'}
           </button>
+
+          <button
+            className="btn-secondary"
+            onClick={() => setShowQuiz(v => !v)}
+            aria-expanded={showQuiz}
+          >
+            {showQuiz ? 'Hide quiz' : 'Quiz me'}
+          </button>
         </div>
       </article>
 
+      {showQuiz && <Quiz lesson={lesson} />}
       {showDeeper && <GoDeeper lesson={lesson} />}
     </div>
   )

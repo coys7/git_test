@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Header from './components/Header'
 import LessonCard from './components/LessonCard'
 import Settings from './components/Settings'
+import Calendar from './components/Calendar'
 import { useLesson } from './hooks/useLesson'
 import { useStreak } from './hooks/useStreak'
 import { useDarkMode } from './hooks/useDarkMode'
@@ -16,6 +17,10 @@ export default function App() {
     setView(v => (v === 'settings' ? 'lesson' : 'settings'))
   }
 
+  function toggleCalendar() {
+    setView(v => (v === 'calendar' ? 'lesson' : 'calendar'))
+  }
+
   return (
     <div className="app">
       <Header
@@ -24,10 +29,13 @@ export default function App() {
         settingsOpen={view === 'settings'}
         dark={dark}
         onDarkToggle={toggleDark}
+        onCalendarClick={toggleCalendar}
       />
       <main>
         {view === 'settings' ? (
           <Settings onClose={() => setView('lesson')} />
+        ) : view === 'calendar' ? (
+          <Calendar />
         ) : (
           <LessonCard
             lesson={lesson}
