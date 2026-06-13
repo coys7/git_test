@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { getStreak, markTodayComplete, isTodayComplete } from '../lib/storage'
+import { getStreak, markTodayComplete, isTodayComplete, recordLessonCompleted } from '../lib/storage'
 
 export function useStreak() {
   const [streak, setStreak] = useState(() => getStreak())
@@ -7,6 +7,7 @@ export function useStreak() {
 
   function complete() {
     const newStreak = markTodayComplete()
+    recordLessonCompleted()
     setStreak(newStreak)
     setCompleted(true)
   }

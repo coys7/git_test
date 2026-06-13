@@ -463,6 +463,397 @@ main {
   line-height: 1.45;
 }
 
+/* ===== STREAK BUTTON ===== */
+.streak-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  transition: opacity 0.15s;
+}
+
+.streak-btn:hover {
+  opacity: 0.75;
+}
+
+/* ===== QUIZ ===== */
+@keyframes quizIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.quiz-section {
+  margin-top: 2.75rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-soft);
+  animation: quizIn 0.35s ease both;
+}
+
+.quiz-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.quiz-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 0;
+}
+
+.quiz-error {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.quiz-placeholder {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.quiz-placeholder-text {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.quiz-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.quiz-question {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.quiz-q-text {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  color: var(--ink);
+  line-height: 1.55;
+  font-weight: 600;
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.quiz-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.quiz-option:hover:not(:disabled) {
+  border-color: var(--ink-soft);
+}
+
+.quiz-option--selected {
+  border-color: var(--ink);
+  background: rgba(26, 26, 46, 0.06);
+}
+
+[data-theme="dark"] .quiz-option--selected {
+  background: rgba(232, 226, 213, 0.08);
+}
+
+.quiz-option--correct {
+  border-color: var(--success);
+  background: rgba(74, 124, 89, 0.1);
+  color: var(--success);
+}
+
+.quiz-option--wrong {
+  border-color: #c0392b;
+  background: rgba(192, 57, 43, 0.08);
+  color: #c0392b;
+}
+
+[data-theme="dark"] .quiz-option--wrong {
+  border-color: #e74c3c;
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.1);
+}
+
+.quiz-option-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  background: var(--vellum-dark);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+
+.quiz-option--selected .quiz-option-label {
+  background: var(--ink);
+  color: var(--vellum);
+}
+
+[data-theme="dark"] .quiz-option--selected .quiz-option-label {
+  background: var(--ink);
+  color: var(--vellum);
+}
+
+.quiz-option--correct .quiz-option-label {
+  background: var(--success);
+  color: #fff;
+}
+
+.quiz-option--wrong .quiz-option-label {
+  background: #c0392b;
+  color: #fff;
+}
+
+[data-theme="dark"] .quiz-option--wrong .quiz-option-label {
+  background: #e74c3c;
+}
+
+.quiz-option-text {
+  flex: 1;
+  line-height: 1.45;
+}
+
+.quiz-explanation {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  padding: 0.6rem 1rem;
+  background: var(--vellum-dark);
+  border-radius: 4px;
+  border-left: 2px solid var(--border);
+}
+
+.quiz-correct-note {
+  font-size: 0.85rem;
+  color: var(--success);
+  font-weight: 600;
+}
+
+.quiz-score {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--vellum-dark);
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+}
+
+.quiz-score-number {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.quiz-score-label {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+/* ===== CALENDAR ===== */
+@keyframes calendarIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.calendar-section {
+  animation: calendarIn 0.3s ease both;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.cal-month-label {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.cal-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--border-soft);
+  border-radius: 3px;
+  padding: 0.35rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: border-color 0.15s, color 0.15s;
+  line-height: 0;
+}
+
+.cal-nav-btn:hover:not(:disabled) {
+  border-color: var(--border);
+  color: var(--ink);
+}
+
+.cal-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.cal-day-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 0 0 0.5rem;
+}
+
+.cal-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: none;
+  border: 1.5px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0.3rem 0 0.25rem;
+  min-height: 38px;
+  transition: border-color 0.12s, background 0.12s;
+  gap: 2px;
+}
+
+.cal-cell:hover:not(.cal-cell--empty) {
+  border-color: var(--border);
+  background: var(--vellum-dark);
+}
+
+.cal-cell--empty {
+  cursor: default;
+  pointer-events: none;
+}
+
+.cal-cell--today {
+  border-color: var(--gold);
+  border-width: 1.5px;
+}
+
+.cal-cell--selected {
+  background: var(--vellum-mid);
+  border-color: var(--ink-soft);
+}
+
+.cal-cell--completed {
+  background: rgba(74, 124, 89, 0.08);
+}
+
+.cal-cell--completed .cal-check {
+  color: var(--success);
+}
+
+.cal-cell--viewed {
+  background: rgba(184, 149, 42, 0.06);
+}
+
+.cal-day-num {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+.cal-cell--today .cal-day-num {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.cal-check {
+  display: block;
+  color: var(--success);
+}
+
+.cal-dot {
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--gold);
+  opacity: 0.7;
+}
+
+.cal-detail {
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem;
+  background: var(--vellum-dark);
+  border-radius: 4px;
+  border-left: 2.5px solid var(--gold);
+}
+
+.cal-detail-title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.4;
+  margin-bottom: 0.3rem;
+}
+
+.cal-detail-category {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.4rem;
+}
+
+.cal-detail-status {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.cal-detail-empty {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (min-width: 480px) {
   :root {
