@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="28" fill="#1a1a2e"/>
+  <!-- Left page -->
+  <rect x="28" y="52" width="62" height="88" rx="4" fill="#f5f0e8"/>
+  <!-- Right page -->
+  <rect x="102" y="52" width="62" height="88" rx="4" fill="#f5f0e8"/>
+  <!-- Spine / center binding -->
+  <rect x="88" y="48" width="16" height="96" rx="3" fill="#b8952a"/>
+  <!-- Left page lines -->
+  <rect x="40" y="74" width="38" height="3" rx="1.5" fill="#1a1a2e" opacity="0.25"/>
+  <rect x="40" y="84" width="38" height="3" rx="1.5" fill="#1a1a2e" opacity="0.25"/>
+  <rect x="40" y="94" width="30" height="3" rx="1.5" fill="#1a1a2e" opacity="0.25"/>
+  <rect x="40" y="104" width="38" height="3" rx="1.5" fill="#1a1a2e" opacity="0.25"/>
+  <!-- Right page lines -->
+  <rect x="114" y="74" width="38" height="3" rx="1.5" fill="#1a1a2e" opacity="0.25"/>
+  <rect x="114" y="84" width="38" height="3" rx="1.5" fill="#1a1a2e" opacity="0.25"/>
+  <rect x="114" y="94" width="30" height="3" rx="1.5" fill="#1a1a2e" opacity="0.25"/>
+  <rect x="114" y="104" width="38" height="3" rx="1.5" fill="#1a1a2e" opacity="0.25"/>
+</svg>
