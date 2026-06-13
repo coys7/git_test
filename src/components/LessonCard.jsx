@@ -138,17 +138,8 @@ export default function LessonCard({ lesson, loading, error, completed, onComple
             )}
           </button>
 
-          <button
-            className="icon-btn"
-            onClick={onReload}
-            aria-label="Get a different lesson"
-            title="New lesson"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <polyline points="23 4 23 10 17 10" />
-              <polyline points="1 20 1 14 7 14" />
-              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-            </svg>
+          <button className="btn-secondary" onClick={onReload}>
+            New lesson
           </button>
         </div>
       </article>
