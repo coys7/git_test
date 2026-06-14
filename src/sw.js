@@ -23,11 +23,11 @@ registerRoute(
 self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'lectio-reminder') {
     event.waitUntil(
-      self.registration.showNotification('Your lecture is ready.', {
-        body: 'Five minutes of real learning. Open Lectio.',
+      self.registration.showNotification('Your daily lesson is ready.', {
+        body: 'Five minutes of real learning. Open Paideia.',
         icon: '/icon.svg',
         badge: '/icon.svg',
-        tag: 'lectio-daily',
+        tag: 'paideia-daily',
         renotify: true
       })
     )

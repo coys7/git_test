@@ -1,1 +1,1 @@
-export const AMAZON_AFFILIATE_TAG = 'lectio-20'
+export const AMAZON_AFFILIATE_TAG = 'paideia-20'

@@ -1,40 +1,48 @@
 export default function About({ onClose }) {
   return (
     <div className="about-section">
-      <h2 className="view-title">About Lectio</h2>
+      <h2 className="view-title">About Paideia</h2>
 
       <div className="about-body">
+        <h3 className="about-subhead">What is Paideia?</h3>
+
         <p>
-          Lectio is a daily micro-learning app built on a simple premise: ten minutes of deliberate reading, every day, compounds into something remarkable.
+          Most of what we read in a day disappears by evening. The scroll moves, the moment passes, and nothing accumulates. Paideia is built against that impulse.
         </p>
 
         <p>
-          The name comes from <em>lectio divina</em> — the ancient practice of slow, contemplative reading. Not scrolling. Not skimming. Reading as a discipline.
+          Each day brings one lesson — drawn from the long sweep of philosophy, history, theology, and political thought, or from the strange and overlooked corners of human civilization. Some lessons will deepen something you already know. Others will open a door you didn't know was there. All of them are worth five to ten minutes of your attention.
         </p>
 
         <p>
-          Each day, Lectio selects a topic from the domains you care about — philosophy, theology, history, science, economics — and delivers a single, carefully crafted lesson. Four minutes to read. A lifetime to think about.
+          As you read, you decide what to Pursue and what to Skip. Over time Paideia learns the shape of your curiosity — surfacing more of what pulls you in, less of what doesn't. Your daily lesson becomes genuinely yours.
         </p>
 
-        <h3 className="about-subhead">How it works</h3>
         <p>
-          Lessons are generated fresh each day by Claude, Anthropic's AI. Every lesson follows the same structure: a hook that reframes the topic, the substance of the matter, and a close that asks why it still matters. Two reflection questions follow.
-        </p>
-        <p>
-          Your taste profile learns over time. Mark a topic as something you want to pursue more of, or skip categories that aren't speaking to you. Lectio adjusts.
+          And over time Paideia becomes something more than a daily habit. It becomes a record — of the ideas you've encountered, the books you want to read, the questions you're still sitting with. A library that is entirely your own.
         </p>
 
         <h3 className="about-subhead">The Stoa</h3>
+
         <p>
-          After each lesson, you can discuss it with the Stoa — a learned AI companion who has read the same lesson and is ready to go deeper, push back, or follow a thread you noticed.
+          In ancient Athens, the Stoa was a painted portico where philosophers gathered to think and teach in the open air — available to anyone who walked by. It was never a lecture hall. It was a place of conversation, of questions as much as answers, of ideas tested against other minds.
         </p>
 
-        <h3 className="about-subhead">Your data</h3>
         <p>
-          Everything lives on your device. Lectio stores your lessons, notes, streak, and library in your browser's local storage. Nothing is sent to a server. Nothing is sold. Your reading life is yours.
+          That's what the Stoa is inside Paideia. Not a search engine. A place to discuss what today's lesson stirred in you, push back on it, follow it somewhere unexpected. Enter with a question or without one. The Stoa meets you where you are.
         </p>
 
-        <p className="about-version">Lectio · Built with Claude</p>
+        <h3 className="about-subhead">On the Name</h3>
+
+        <p>
+          <em>Paideia</em> (Py-DAY-ah) is the ancient Greek word for the formation of a person through learning — not education in the modern sense of acquiring information, but the lifelong cultivation of the whole mind. It was Plato's word for what genuine learning does to a person over time: it shapes them.
+        </p>
+
+        <p>
+          That's what this app is for. Not content consumption. Formation.
+        </p>
+
+        <p className="about-version">Paideia · Built with Claude</p>
       </div>
 
       <button className="btn-secondary" onClick={onClose}>Close</button>

@@ -107,14 +107,14 @@ export default function Settings({ onClose, onAbout }) {
           </p>
         )}
         <p className="reminder-note">
-          Works on Chrome Android with Lectio installed on your home screen. Timing is approximate.
+          Works on Chrome Android with Paideia installed on your home screen. Timing is approximate.
         </p>
       </div>
 
       <div className="settings-footer">
         <button className="btn-primary" onClick={save}>Save &amp; close</button>
         {onAbout && (
-          <button className="btn-secondary settings-about-btn" onClick={onAbout}>About Lectio</button>
+          <button className="btn-secondary settings-about-btn" onClick={onAbout}>About Paideia</button>
         )}
       </div>
     </div>

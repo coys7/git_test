@@ -4,16 +4,16 @@ export async function enableReminder() {
   }
   const permission = await Notification.requestPermission()
   if (permission !== 'granted') {
-    return { ok: false, reason: 'Permission denied. Enable notifications for Lectio in your browser settings.' }
+    return { ok: false, reason: 'Permission denied. Enable notifications for Paideia in your browser settings.' }
   }
   try {
     const reg = await navigator.serviceWorker.ready
     if (!('periodicSync' in reg)) {
-      return { ok: false, reason: 'Background reminders require Chrome on Android with Lectio installed on your home screen.' }
+      return { ok: false, reason: 'Background reminders require Chrome on Android with Paideia installed on your home screen.' }
     }
     const status = await navigator.permissions.query({ name: 'periodic-background-sync' })
     if (status.state !== 'granted') {
-      return { ok: false, reason: 'Add Lectio to your home screen first, then set the reminder.' }
+      return { ok: false, reason: 'Add Paideia to your home screen first, then set the reminder.' }
     }
     await reg.periodicSync.register('lectio-reminder', { minInterval: 24 * 60 * 60 * 1000 })
     return { ok: true }

@@ -12,8 +12,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Lectio',
-        short_name: 'Lectio',
+        name: 'Paideia',
+        short_name: 'Paideia',
         description: 'Daily micro-lessons for deliberate learning',
         theme_color: '#1a1a2e',
         background_color: '#f5f0e8',

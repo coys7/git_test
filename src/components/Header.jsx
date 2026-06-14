@@ -2,7 +2,7 @@ export default function Header({ streak, dark, onDarkToggle, onCalendarClick, ca
   return (
     <header className="header">
       <div className="header-inner">
-        <span className="wordmark">Lectio</span>
+        <span className="wordmark">Paideia</span>
         <div className="header-right">
           {streak > 0 && (
             <button
