@@ -2,13 +2,16 @@ import { useState } from 'react'
 import GoDeeper from './GoDeeper'
 import Quiz from './Quiz'
 import Notes from './Notes'
-import { getToday } from '../lib/storage'
+import Stoa from './Stoa'
+import { getToday, recordPursuit, recordSkip } from '../lib/storage'
 
 export default function LessonCard({ lesson, loading, error, completed, onComplete, onReload }) {
   const [showDeeper, setShowDeeper] = useState(false)
   const [showQuiz, setShowQuiz] = useState(false)
+  const [showStoa, setShowStoa] = useState(false)
   const [flash, setFlash] = useState(false)
   const [shareCopied, setShareCopied] = useState(false)
+  const [tasteSignal, setTasteSignal] = useState(null)
 
   function handleComplete() {
     onComplete()
@@ -32,6 +35,20 @@ export default function LessonCard({ lesson, loading, error, completed, onComple
       setShareCopied(true)
       setTimeout(() => setShareCopied(false), 1800)
     }
+  }
+
+  function handlePursue() {
+    const catId = lesson._categoryId || lesson.category?.toLowerCase().replace(/\s+/g, '-')
+    recordPursuit(catId)
+    setTasteSignal('pursued')
+    setTimeout(() => setTasteSignal(null), 2000)
+  }
+
+  function handleSkip() {
+    const catId = lesson._categoryId || lesson.category?.toLowerCase().replace(/\s+/g, '-')
+    recordSkip(catId)
+    setTasteSignal('skipped')
+    setTimeout(() => setTasteSignal(null), 2000)
   }
 
   if (loading) {
@@ -125,6 +142,14 @@ export default function LessonCard({ lesson, loading, error, completed, onComple
           </button>
 
           <button
+            className="btn-secondary"
+            onClick={() => setShowStoa(v => !v)}
+            aria-expanded={showStoa}
+          >
+            {showStoa ? 'Close Stoa' : 'Discuss With the Stoa'}
+          </button>
+
+          <button
             className="btn-secondary share-btn"
             onClick={handleShare}
             aria-label="Share lesson"
@@ -142,10 +167,23 @@ export default function LessonCard({ lesson, loading, error, completed, onComple
             New lesson
           </button>
         </div>
+
+        <div className="taste-row">
+          {tasteSignal === 'pursued' && <span className="taste-feedback">Noted — more like this.</span>}
+          {tasteSignal === 'skipped' && <span className="taste-feedback">Got it — less of this.</span>}
+          {!tasteSignal && (
+            <>
+              <button className="taste-btn" onClick={handlePursue}>Pursue this topic</button>
+              <span className="taste-sep" aria-hidden="true">·</span>
+              <button className="taste-btn" onClick={handleSkip}>Skip this category</button>
+            </>
+          )}
+        </div>
       </article>
 
       {showQuiz && <Quiz lesson={lesson} />}
       {showDeeper && <GoDeeper lesson={lesson} />}
+      {showStoa && <Stoa lesson={lesson} />}
     </div>
   )
 }

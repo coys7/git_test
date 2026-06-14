@@ -8,9 +8,10 @@ import {
   getActiveCategories,
   getCompletedTopics,
   addCompletedTopic,
-  recordLessonViewed
+  recordLessonViewed,
+  getTasteProfile
 } from '../lib/storage'
-import { getRandomActiveCategory, getTopicPrompt } from '../lib/topics'
+import { getWeightedCategory, getTopicPrompt } from '../lib/topics'
 
 export function useLesson() {
   const [lesson, setLesson] = useState(null)
@@ -33,11 +34,13 @@ export function useLesson() {
 
     try {
       const activeCategories = getActiveCategories()
-      const categoryId = getRandomActiveCategory(activeCategories)
+      const tasteProfile = getTasteProfile()
+      const categoryId = getWeightedCategory(activeCategories, tasteProfile)
       const completedTopics = getCompletedTopics()
       const topicPrompt = getTopicPrompt(categoryId, completedTopics)
 
       const generated = await generateLesson(topicPrompt)
+      generated._categoryId = categoryId
       setTodayLesson(generated)
       if (generated.title) addCompletedTopic(generated.title)
       recordLessonViewed(generated)

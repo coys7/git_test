@@ -245,3 +245,24 @@ export function getRandomActiveCategory(activeCategories) {
   if (!activeCategories || activeCategories.length === 0) return CATEGORIES[0].id
   return activeCategories[Math.floor(Math.random() * activeCategories.length)]
 }
+
+export function getWeightedCategory(activeCategories, tasteProfile) {
+  if (!activeCategories || activeCategories.length === 0) return CATEGORIES[0].id
+  if (!tasteProfile || Object.keys(tasteProfile).length === 0) {
+    return getRandomActiveCategory(activeCategories)
+  }
+
+  const weights = activeCategories.map(id => {
+    const pursues = tasteProfile[`pursue_${id}`] || 0
+    const skips = tasteProfile[`skip_${id}`] || 0
+    return Math.max(0.1, 1.0 + pursues * 0.5 - skips * 0.4)
+  })
+
+  const total = weights.reduce((a, b) => a + b, 0)
+  let r = Math.random() * total
+  for (let i = 0; i < activeCategories.length; i++) {
+    r -= weights[i]
+    if (r <= 0) return activeCategories[i]
+  }
+  return activeCategories[activeCategories.length - 1]
+}

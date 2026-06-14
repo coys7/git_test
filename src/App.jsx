@@ -1,53 +1,80 @@
 import { useState } from 'react'
 import Header from './components/Header'
+import BottomNav from './components/BottomNav'
 import LessonCard from './components/LessonCard'
 import Settings from './components/Settings'
 import Calendar from './components/Calendar'
+import Archive from './components/Archive'
+import Library from './components/Library'
+import Stats from './components/Stats'
+import About from './components/About'
+import WeeklyDigest from './components/WeeklyDigest'
 import { useLesson } from './hooks/useLesson'
 import { useStreak } from './hooks/useStreak'
 import { useDarkMode } from './hooks/useDarkMode'
 
+function isSunday() {
+  return new Date().getDay() === 0
+}
+
 export default function App() {
   const [view, setView] = useState('lesson')
+  const [calendarOpen, setCalendarOpen] = useState(false)
+  const [showDigest, setShowDigest] = useState(() => isSunday())
   const { lesson, loading, error, reload } = useLesson()
   const { streak, completed, complete } = useStreak()
   const { dark, toggle: toggleDark } = useDarkMode()
 
-  function toggleSettings() {
-    setView(v => (v === 'settings' ? 'lesson' : 'settings'))
+  function handleCalendarClick() {
+    setCalendarOpen(v => !v)
+    if (view !== 'lesson') setView('lesson')
   }
 
-  function toggleCalendar() {
-    setView(v => (v === 'calendar' ? 'lesson' : 'calendar'))
+  function handleNavigate(newView) {
+    setCalendarOpen(false)
+    setView(newView)
+  }
+
+  function renderMain() {
+    if (calendarOpen) return <Calendar />
+    switch (view) {
+      case 'archive': return <Archive />
+      case 'library': return <Library lesson={lesson} />
+      case 'stats': return <Stats />
+      case 'settings': return <Settings onClose={() => setView('lesson')} onAbout={() => setView('about')} />
+      case 'about': return <About onClose={() => setView('settings')} />
+      default:
+        return (
+          <>
+            {showDigest && isSunday() && (
+              <WeeklyDigest onDismiss={() => setShowDigest(false)} />
+            )}
+            <LessonCard
+              lesson={lesson}
+              loading={loading}
+              error={error}
+              completed={completed}
+              onComplete={complete}
+              onReload={reload}
+            />
+          </>
+        )
+    }
   }
 
   return (
     <div className="app">
       <Header
         streak={streak.count}
-        onSettingsClick={toggleSettings}
-        settingsOpen={view === 'settings'}
         dark={dark}
         onDarkToggle={toggleDark}
-        onCalendarClick={toggleCalendar}
-        calendarOpen={view === 'calendar'}
+        onCalendarClick={handleCalendarClick}
+        calendarOpen={calendarOpen}
       />
       <main>
-        {view === 'settings' ? (
-          <Settings onClose={() => setView('lesson')} />
-        ) : view === 'calendar' ? (
-          <Calendar />
-        ) : (
-          <LessonCard
-            lesson={lesson}
-            loading={loading}
-            error={error}
-            completed={completed}
-            onComplete={complete}
-            onReload={reload}
-          />
-        )}
+        {renderMain()}
       </main>
+      <BottomNav view={view} onNavigate={handleNavigate} />
     </div>
   )
 }

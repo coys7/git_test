@@ -3,7 +3,7 @@ import { CATEGORIES } from '../lib/topics'
 import { getActiveCategories, setActiveCategories } from '../lib/storage'
 import { enableReminder, disableReminder, getReminderStatus } from '../lib/reminder'
 
-export default function Settings({ onClose }) {
+export default function Settings({ onClose, onAbout }) {
   const [active, setActive] = useState(() => getActiveCategories())
   const [reminderStatus, setReminderStatus] = useState('inactive')
   const [reminderMessage, setReminderMessage] = useState('')
@@ -111,7 +111,12 @@ export default function Settings({ onClose }) {
         </p>
       </div>
 
-      <button className="btn-primary" onClick={save}>Save &amp; close</button>
+      <div className="settings-footer">
+        <button className="btn-primary" onClick={save}>Save &amp; close</button>
+        {onAbout && (
+          <button className="btn-secondary settings-about-btn" onClick={onAbout}>About Lectio</button>
+        )}
+      </div>
     </div>
   )
 }

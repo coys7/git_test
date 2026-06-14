@@ -5,7 +5,12 @@ const KEYS = {
   ACTIVE_CATEGORIES: 'lectio_active_categories',
   HISTORY: 'lectio_history',
   TODAY_QUIZ: 'lectio_today_quiz',
-  NOTES: 'lectio_notes'
+  NOTES: 'lectio_notes',
+  TASTE_PROFILE: 'lectio_taste_profile',
+  ARCHIVE: 'lectio_archive',
+  STOA_CHATS: 'lectio_stoa_chats',
+  LIBRARY: 'lectio_library',
+  WEEKLY_DIGEST: 'lectio_weekly_digest'
 }
 
 const DEFAULT_CATEGORIES = ['philosophy', 'theology', 'history', 'niche-history', 'economics', 'science']
@@ -81,7 +86,7 @@ export function addCompletedTopic(topic) {
   localStorage.setItem(KEYS.COMPLETED_TOPICS, JSON.stringify(topics))
 }
 
-// ===== HISTORY =====
+// ===== HISTORY (capped at 30, used by calendar) =====
 
 export function getHistory() {
   try {
@@ -93,7 +98,6 @@ export function getHistory() {
 }
 
 function saveHistory(history) {
-  // Keep last 30 entries
   const trimmed = history.slice(-30)
   localStorage.setItem(KEYS.HISTORY, JSON.stringify(trimmed))
 }
@@ -101,18 +105,73 @@ function saveHistory(history) {
 export function recordLessonViewed(lesson) {
   if (!lesson) return
   const today = getToday()
+
   const history = getHistory()
-  const existingIndex = history.findIndex(e => e.date === today)
-  if (existingIndex !== -1) return // idempotent
-  history.push({
+  if (!history.find(e => e.date === today)) {
+    history.push({
+      date: today,
+      title: lesson.title,
+      category: lesson.category,
+      body: lesson.body || null,
+      reflections: lesson.reflections || null,
+      completed: false
+    })
+    saveHistory(history)
+  }
+
+  addToArchive(lesson)
+}
+
+export function recordLessonCompleted() {
+  const today = getToday()
+
+  const history = getHistory()
+  const idx = history.findIndex(e => e.date === today)
+  if (idx !== -1) {
+    history[idx].completed = true
+  } else {
+    history.push({ date: today, title: '', category: '', completed: true })
+  }
+  saveHistory(history)
+
+  markArchiveCompleted(today)
+}
+
+// ===== ARCHIVE (unlimited, used by Archive view) =====
+
+export function getArchive() {
+  try {
+    const stored = localStorage.getItem(KEYS.ARCHIVE)
+    return stored ? JSON.parse(stored) : []
+  } catch {
+    return []
+  }
+}
+
+function addToArchive(lesson) {
+  if (!lesson) return
+  const today = getToday()
+  const archive = getArchive()
+  if (archive.find(e => e.date === today)) return
+  archive.push({
     date: today,
     title: lesson.title,
     category: lesson.category,
+    categoryId: lesson._categoryId || null,
     body: lesson.body || null,
     reflections: lesson.reflections || null,
     completed: false
   })
-  saveHistory(history)
+  localStorage.setItem(KEYS.ARCHIVE, JSON.stringify(archive))
+}
+
+function markArchiveCompleted(date) {
+  const archive = getArchive()
+  const entry = archive.find(e => e.date === date)
+  if (entry) {
+    entry.completed = true
+    localStorage.setItem(KEYS.ARCHIVE, JSON.stringify(archive))
+  }
 }
 
 // ===== NOTES =====
@@ -133,7 +192,6 @@ export function setNoteForDate(date, text) {
     const stored = localStorage.getItem(KEYS.NOTES)
     const notes = stored ? JSON.parse(stored) : {}
     notes[date] = text
-    // Trim entries older than 60 days
     const cutoff = new Date()
     cutoff.setDate(cutoff.getDate() - 60)
     const cutoffStr = cutoff.toISOString().split('T')[0]
@@ -142,18 +200,6 @@ export function setNoteForDate(date, text) {
     }
     localStorage.setItem(KEYS.NOTES, JSON.stringify(notes))
   } catch {}
-}
-
-export function recordLessonCompleted() {
-  const today = getToday()
-  const history = getHistory()
-  const existingIndex = history.findIndex(e => e.date === today)
-  if (existingIndex !== -1) {
-    history[existingIndex].completed = true
-  } else {
-    history.push({ date: today, title: '', category: '', completed: true })
-  }
-  saveHistory(history)
 }
 
 // ===== QUIZ =====
@@ -178,6 +224,8 @@ export function setTodayQuiz(quiz) {
   localStorage.setItem(KEYS.TODAY_QUIZ, JSON.stringify({ date: getToday(), quiz }))
 }
 
+// ===== CATEGORIES =====
+
 export function getActiveCategories() {
   try {
     const stored = localStorage.getItem(KEYS.ACTIVE_CATEGORIES)
@@ -191,4 +239,130 @@ export function getActiveCategories() {
 
 export function setActiveCategories(categories) {
   localStorage.setItem(KEYS.ACTIVE_CATEGORIES, JSON.stringify(categories))
+}
+
+// ===== TASTE PROFILE =====
+
+export function getTasteProfile() {
+  try {
+    const stored = localStorage.getItem(KEYS.TASTE_PROFILE)
+    return stored ? JSON.parse(stored) : {}
+  } catch {
+    return {}
+  }
+}
+
+export function recordPursuit(categoryId) {
+  if (!categoryId) return
+  const profile = getTasteProfile()
+  const key = `pursue_${categoryId}`
+  profile[key] = (profile[key] || 0) + 1
+  localStorage.setItem(KEYS.TASTE_PROFILE, JSON.stringify(profile))
+}
+
+export function recordSkip(categoryId) {
+  if (!categoryId) return
+  const profile = getTasteProfile()
+  const key = `skip_${categoryId}`
+  profile[key] = (profile[key] || 0) + 1
+  localStorage.setItem(KEYS.TASTE_PROFILE, JSON.stringify(profile))
+}
+
+// ===== STOA CHATS =====
+
+export function getStoaChat(date) {
+  try {
+    const stored = localStorage.getItem(KEYS.STOA_CHATS)
+    const chats = stored ? JSON.parse(stored) : {}
+    return chats[date] || []
+  } catch {
+    return []
+  }
+}
+
+export function saveStoaChat(date, messages) {
+  try {
+    const stored = localStorage.getItem(KEYS.STOA_CHATS)
+    const chats = stored ? JSON.parse(stored) : {}
+    chats[date] = messages
+    const keys = Object.keys(chats).sort()
+    if (keys.length > 30) {
+      for (const k of keys.slice(0, keys.length - 30)) delete chats[k]
+    }
+    localStorage.setItem(KEYS.STOA_CHATS, JSON.stringify(chats))
+  } catch {}
+}
+
+// ===== LIBRARY =====
+
+export function getLibrary() {
+  try {
+    const stored = localStorage.getItem(KEYS.LIBRARY)
+    return stored ? JSON.parse(stored) : []
+  } catch {
+    return []
+  }
+}
+
+export function addBooksToLibrary(books) {
+  const library = getLibrary()
+  for (const book of books) {
+    if (!library.find(b => b.id === book.id)) {
+      library.push({ ...book, status: 'want', addedAt: new Date().toISOString() })
+    }
+  }
+  localStorage.setItem(KEYS.LIBRARY, JSON.stringify(library))
+}
+
+export function cycleBookStatus(bookId) {
+  const library = getLibrary()
+  const book = library.find(b => b.id === bookId)
+  if (!book) return
+  const cycle = ['want', 'reading', 'read']
+  const next = cycle[(cycle.indexOf(book.status) + 1) % cycle.length]
+  book.status = next
+  localStorage.setItem(KEYS.LIBRARY, JSON.stringify(library))
+}
+
+export function removeFromLibrary(bookId) {
+  const library = getLibrary().filter(b => b.id !== bookId)
+  localStorage.setItem(KEYS.LIBRARY, JSON.stringify(library))
+}
+
+// ===== WEEKLY DIGEST =====
+
+export function getISOWeekKey() {
+  const d = new Date()
+  d.setHours(0, 0, 0, 0)
+  d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7))
+  const week1 = new Date(d.getFullYear(), 0, 4)
+  const weekNum = 1 + Math.round(((d - week1) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7)
+  return `${d.getFullYear()}-W${String(weekNum).padStart(2, '0')}`
+}
+
+export function getWeeklyDigest() {
+  try {
+    const stored = localStorage.getItem(KEYS.WEEKLY_DIGEST)
+    if (!stored) return null
+    const parsed = JSON.parse(stored)
+    if (parsed.week !== getISOWeekKey()) return null
+    return parsed.digest
+  } catch {
+    return null
+  }
+}
+
+export function setWeeklyDigest(digest) {
+  localStorage.setItem(KEYS.WEEKLY_DIGEST, JSON.stringify({ week: getISOWeekKey(), digest }))
+}
+
+export function getThisWeekCompletedLessons() {
+  const archive = getArchive()
+  const today = new Date()
+  const dayOfWeek = today.getDay()
+  const monday = new Date(today)
+  monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7))
+  monday.setHours(0, 0, 0, 0)
+  const mondayStr = monday.toISOString().split('T')[0]
+  return archive.filter(e => e.completed && e.date >= mondayStr)
 }
