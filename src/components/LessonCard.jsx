@@ -43,14 +43,12 @@ export default function LessonCard({ lesson, loading, error, completed, onComple
     const catId = lesson._categoryId || lesson.category?.toLowerCase().replace(/\s+/g, '-')
     recordPursuit(catId)
     setTasteSignal('pursued')
-    setTimeout(() => setTasteSignal(null), 2000)
   }
 
   function handleSkip() {
     const catId = lesson._categoryId || lesson.category?.toLowerCase().replace(/\s+/g, '-')
     recordSkip(catId)
     setTasteSignal('skipped')
-    setTimeout(() => setTasteSignal(null), 2000)
   }
 
   if (loading) {
@@ -158,7 +156,7 @@ export default function LessonCard({ lesson, loading, error, completed, onComple
               onClick={() => setShowDeeper(v => !v)}
               aria-expanded={showDeeper}
             >
-              {showDeeper ? 'Less' : 'Go deeper →'}
+              {showDeeper ? 'Less' : 'Go deeper'}
             </button>
 
             <button
@@ -194,15 +192,19 @@ export default function LessonCard({ lesson, loading, error, completed, onComple
         </div>
 
         <div className="taste-row">
-          {tasteSignal === 'pursued' && <span className="taste-feedback">Noted — more like this.</span>}
-          {tasteSignal === 'skipped' && <span className="taste-feedback">Got it — less of this.</span>}
-          {!tasteSignal && (
-            <>
-              <button className="taste-btn" onClick={handlePursue}>Pursue this topic</button>
-              <span className="taste-sep" aria-hidden="true">·</span>
-              <button className="taste-btn" onClick={handleSkip}>Skip this category</button>
-            </>
-          )}
+          <button
+            className={`taste-btn${tasteSignal === 'pursued' ? ' taste-btn--active' : ''}`}
+            onClick={handlePursue}
+          >
+            {tasteSignal === 'pursued' ? '✓ Pursuing' : 'Pursue this topic'}
+          </button>
+          <span className="taste-sep" aria-hidden="true">|</span>
+          <button
+            className={`taste-btn${tasteSignal === 'skipped' ? ' taste-btn--active' : ''}`}
+            onClick={handleSkip}
+          >
+            {tasteSignal === 'skipped' ? '✓ Skipping' : 'Skip this category'}
+          </button>
         </div>
       </article>
 

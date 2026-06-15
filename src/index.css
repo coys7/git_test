@@ -1087,15 +1087,15 @@ textarea.notes-input:focus {
   color: var(--ink);
 }
 
-.taste-sep {
-  font-size: 0.8rem;
-  color: var(--border);
+.taste-btn--active {
+  color: var(--gold);
+  font-weight: 600;
 }
 
-.taste-feedback {
-  font-size: 0.82rem;
-  color: var(--gold);
-  font-style: italic;
+.taste-sep {
+  font-size: 0.75rem;
+  color: var(--border);
+  user-select: none;
 }
 
 /* ===== RECOMMENDED READING ACCORDION ===== */
@@ -1719,6 +1719,13 @@ textarea.notes-input:focus {
 .library-rec-btn {
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+.library-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
 }
 
 .library-error {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { generateBookRecs } from '../lib/claude'
 import { getLibrary, addBooksToLibrary, cycleBookStatus, removeFromLibrary } from '../lib/storage'
 import { AMAZON_AFFILIATE_TAG } from '../config'
@@ -124,6 +124,13 @@ export default function Library({ lesson }) {
   const [library, setLibrary] = useState(() => getLibrary())
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [filterCat, setFilterCat] = useState(null)
+
+  const allCategories = useMemo(() => {
+    const seen = new Set()
+    for (const b of library) if (b.category) seen.add(b.category)
+    return [...seen]
+  }, [library])
 
   const refresh = useCallback(async () => {
     if (!lesson) return
@@ -155,10 +162,11 @@ export default function Library({ lesson }) {
     setLibrary(getLibrary())
   }
 
+  const visible = filterCat ? library.filter(b => b.category === filterCat) : library
   const groups = {
-    reading: library.filter(b => b.status === 'reading'),
-    want: library.filter(b => b.status === 'want'),
-    read: library.filter(b => b.status === 'read')
+    reading: visible.filter(b => b.status === 'reading'),
+    want: visible.filter(b => b.status === 'want'),
+    read: visible.filter(b => b.status === 'read')
   }
 
   return (
@@ -175,6 +183,26 @@ export default function Library({ lesson }) {
       </div>
 
       {error && <p className="library-error">{error}</p>}
+
+      {allCategories.length > 1 && (
+        <div className="library-filters">
+          <button
+            className={`archive-filter${!filterCat ? ' active' : ''}`}
+            onClick={() => setFilterCat(null)}
+          >
+            All
+          </button>
+          {allCategories.map(cat => (
+            <button
+              key={cat}
+              className={`archive-filter${filterCat === cat ? ' active' : ''}`}
+              onClick={() => setFilterCat(filterCat === cat ? null : cat)}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      )}
 
       {library.length === 0 && !loading && (
         <div className="library-empty">
