@@ -3,12 +3,14 @@ import GoDeeper from './GoDeeper'
 import Quiz from './Quiz'
 import Notes from './Notes'
 import Stoa from './Stoa'
+import RecommendedReading from './RecommendedReading'
 import { getToday, recordPursuit, recordSkip } from '../lib/storage'
 
-export default function LessonCard({ lesson, loading, error, completed, onComplete, onReload }) {
+export default function LessonCard({ lesson, loading, error, completed, onComplete, onReload, onUndo, canUndo }) {
   const [showDeeper, setShowDeeper] = useState(false)
   const [showQuiz, setShowQuiz] = useState(false)
   const [showStoa, setShowStoa] = useState(false)
+  const [showRecs, setShowRecs] = useState(false)
   const [flash, setFlash] = useState(false)
   const [shareCopied, setShareCopied] = useState(false)
   const [tasteSignal, setTasteSignal] = useState(null)
@@ -55,7 +57,12 @@ export default function LessonCard({ lesson, loading, error, completed, onComple
     return (
       <div className="loading-state" role="status" aria-live="polite">
         <div className="loading-orb" />
-        <p className="loading-text">Preparing today's lesson…</p>
+        <p className="loading-text">Preparing your next lesson…</p>
+        {canUndo && (
+          <button className="btn-secondary" style={{ marginTop: '1.25rem' }} onClick={onUndo}>
+            ← Previous lesson
+          </button>
+        )}
       </div>
     )
   }
@@ -69,7 +76,12 @@ export default function LessonCard({ lesson, loading, error, completed, onComple
           <circle cx="16" cy="22" r="1" fill="currentColor" stroke="none" />
         </svg>
         <p className="error-message">{error}</p>
-        <button className="btn-secondary" onClick={onReload}>Try again</button>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button className="btn-secondary" onClick={onReload}>Try again</button>
+          {canUndo && (
+            <button className="btn-secondary" onClick={onUndo}>← Previous lesson</button>
+          )}
+        </div>
       </div>
     )
   }
@@ -87,7 +99,22 @@ export default function LessonCard({ lesson, loading, error, completed, onComple
           <span className="category-tag">{lesson.category}</span>
           <span className="reading-time-sep" aria-hidden="true">·</span>
           <span className="reading-time">{readingTime} min read</span>
+
+          {canUndo ? (
+            <button className="meta-undo-btn" onClick={onUndo}>
+              ← Previous lesson
+            </button>
+          ) : (
+            <button className="meta-new-btn" onClick={onReload} title="Get a new lesson">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <polyline points="10,2 10,5 7,5" />
+                <path d="M10 5A4 4 0 1 1 6.5 2" />
+              </svg>
+              New
+            </button>
+          )}
         </div>
+
         <h1 className="lesson-title">{lesson.title}</h1>
         <div className="lesson-divider" aria-hidden="true" />
 
@@ -125,47 +152,45 @@ export default function LessonCard({ lesson, loading, error, completed, onComple
             </button>
           )}
 
-          <button
-            className="btn-secondary"
-            onClick={() => setShowDeeper(v => !v)}
-            aria-expanded={showDeeper}
-          >
-            {showDeeper ? 'Show less' : 'Go deeper →'}
-          </button>
+          <div className="lesson-actions-secondary">
+            <button
+              className="btn-secondary"
+              onClick={() => setShowDeeper(v => !v)}
+              aria-expanded={showDeeper}
+            >
+              {showDeeper ? 'Less' : 'Go deeper →'}
+            </button>
 
-          <button
-            className="btn-secondary"
-            onClick={() => setShowQuiz(v => !v)}
-            aria-expanded={showQuiz}
-          >
-            {showQuiz ? 'Hide quiz' : 'Quiz me'}
-          </button>
+            <button
+              className="btn-secondary"
+              onClick={() => setShowQuiz(v => !v)}
+              aria-expanded={showQuiz}
+            >
+              Quiz me
+            </button>
 
-          <button
-            className="btn-secondary"
-            onClick={() => setShowStoa(v => !v)}
-            aria-expanded={showStoa}
-          >
-            {showStoa ? 'Close Stoa' : 'Discuss With the Stoa'}
-          </button>
+            <button
+              className="btn-secondary"
+              onClick={() => setShowStoa(v => !v)}
+              aria-expanded={showStoa}
+            >
+              Discuss
+            </button>
 
-          <button
-            className="btn-secondary share-btn"
-            onClick={handleShare}
-            aria-label="Share lesson"
-          >
-            {shareCopied ? 'Copied!' : (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-                <polyline points="16 6 12 2 8 6" />
-                <line x1="12" y1="2" x2="12" y2="15" />
-              </svg>
-            )}
-          </button>
-
-          <button className="btn-secondary" onClick={onReload}>
-            New lesson
-          </button>
+            <button
+              className="btn-secondary share-btn"
+              onClick={handleShare}
+              aria-label="Share lesson"
+            >
+              {shareCopied ? 'Copied!' : (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                  <polyline points="16 6 12 2 8 6" />
+                  <line x1="12" y1="2" x2="12" y2="15" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
 
         <div className="taste-row">
@@ -179,8 +204,19 @@ export default function LessonCard({ lesson, loading, error, completed, onComple
             </>
           )}
         </div>
+
+        <div className="rec-trigger-row">
+          <button
+            className="rec-trigger-btn"
+            onClick={() => setShowRecs(v => !v)}
+            aria-expanded={showRecs}
+          >
+            {showRecs ? 'Hide recommendations' : 'Recommended reading →'}
+          </button>
+        </div>
       </article>
 
+      {showRecs && <RecommendedReading lesson={lesson} />}
       {showQuiz && <Quiz lesson={lesson} />}
       {showDeeper && <GoDeeper lesson={lesson} />}
       {showStoa && <Stoa lesson={lesson} />}

@@ -21,7 +21,7 @@ export default function App() {
   const [view, setView] = useState('lesson')
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [showDigest, setShowDigest] = useState(() => isSunday())
-  const { lesson, loading, error, reload } = useLesson()
+  const { lesson, loading, error, reload, undoReload, canUndo } = useLesson()
   const { streak, completed, complete } = useStreak()
   const { dark, toggle: toggleDark } = useDarkMode()
 
@@ -33,6 +33,10 @@ export default function App() {
   function handleNavigate(newView) {
     setCalendarOpen(false)
     setView(newView)
+  }
+
+  function handleReload() {
+    reload(lesson)
   }
 
   function renderMain() {
@@ -55,7 +59,9 @@ export default function App() {
               error={error}
               completed={completed}
               onComplete={complete}
-              onReload={reload}
+              onReload={handleReload}
+              onUndo={undoReload}
+              canUndo={canUndo}
             />
           </>
         )

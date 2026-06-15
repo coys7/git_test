@@ -81,7 +81,7 @@ export default function Stoa({ lesson }) {
   return (
     <div className="stoa-section">
       <div className="stoa-header">
-        <span className="stoa-label">Discuss With the Stoa</span>
+        <span className="stoa-label">Stoa</span>
         {messages.length > 0 && (
           <button
             className="stoa-clear"

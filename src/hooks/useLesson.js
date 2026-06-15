@@ -17,6 +17,7 @@ export function useLesson() {
   const [lesson, setLesson] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [prevLesson, setPrevLesson] = useState(null)
 
   const loadLesson = useCallback(async (forceReload = false) => {
     setLoading(true)
@@ -56,11 +57,20 @@ export function useLesson() {
     loadLesson()
   }, [loadLesson])
 
-  const reload = useCallback(() => {
+  const reload = useCallback((currentLesson) => {
+    if (currentLesson) setPrevLesson(currentLesson)
     clearTodayLesson()
     clearTodayQuiz()
     loadLesson(true)
   }, [loadLesson])
 
-  return { lesson, loading, error, reload }
+  const undoReload = useCallback(() => {
+    if (!prevLesson) return
+    setTodayLesson(prevLesson)
+    setLesson(prevLesson)
+    setPrevLesson(null)
+    setError(null)
+  }, [prevLesson])
+
+  return { lesson, loading, error, reload, undoReload, canUndo: !!prevLesson }
 }
