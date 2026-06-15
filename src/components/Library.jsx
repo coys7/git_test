@@ -32,7 +32,7 @@ function BookCover({ searchQuery, title }) {
   if (!coverUrl) {
     return (
       <div className="book-cover book-cover--placeholder">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
         </svg>
@@ -51,19 +51,26 @@ function BookCover({ searchQuery, title }) {
 }
 
 function BookCard({ book, onCycle, onRemove }) {
+  const [expanded, setExpanded] = useState(false)
   const amazonUrl = `https://www.amazon.com/s?k=${encodeURIComponent(book.title + ' ' + book.author)}&tag=${AMAZON_AFFILIATE_TAG}`
 
   return (
-    <div className="book-card">
-      <a
-        className="book-cover-link"
-        href={amazonUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        title={`Find "${book.title}" on Amazon`}
-      >
-        <BookCover searchQuery={book.searchQuery} title={book.title} />
-      </a>
+    <div className={`book-card${expanded ? ' book-card--expanded' : ''}`}>
+      <div className="book-cover-col">
+        <a
+          className="book-cover-link"
+          href={amazonUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={`Find "${book.title}" on Amazon`}
+        >
+          <BookCover searchQuery={book.searchQuery} title={book.title} />
+        </a>
+        {book.category && (
+          <span className="book-category-tag">{book.category}</span>
+        )}
+      </div>
+
       <div className="book-info">
         <a
           className="book-title"
@@ -74,7 +81,11 @@ function BookCard({ book, onCycle, onRemove }) {
           {book.title}
         </a>
         <p className="book-author">{book.author}</p>
-        <p className="book-why">{book.why}</p>
+
+        {expanded && book.why && (
+          <p className="book-why">{book.why}</p>
+        )}
+
         <div className="book-actions">
           <button
             className={`book-status book-status--${book.status}`}
@@ -83,14 +94,24 @@ function BookCard({ book, onCycle, onRemove }) {
           >
             {STATUS_LABELS[book.status]}
           </button>
+
+          {book.why && (
+            <button
+              className="book-expand-btn"
+              onClick={() => setExpanded(v => !v)}
+            >
+              {expanded ? 'Less' : 'More'}
+            </button>
+          )}
+
           <button
             className="book-remove"
             onClick={() => onRemove(book.id)}
             aria-label="Remove from library"
           >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <line x1="2" y1="2" x2="12" y2="12" />
-              <line x1="12" y1="2" x2="2" y2="12" />
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="2" y1="2" x2="11" y2="11" />
+              <line x1="11" y1="2" x2="2" y2="11" />
             </svg>
           </button>
         </div>
@@ -112,7 +133,8 @@ export default function Library({ lesson }) {
       const books = await generateBookRecs(lesson)
       const withIds = books.map((b, i) => ({
         ...b,
-        id: `${Date.now()}-${i}`
+        id: `${Date.now()}-${i}`,
+        category: lesson.category
       }))
       addBooksToLibrary(withIds)
       setLibrary(getLibrary())
@@ -156,8 +178,8 @@ export default function Library({ lesson }) {
 
       {library.length === 0 && !loading && (
         <div className="library-empty">
-          <p>Get book recommendations based on today's lesson.</p>
-          <p className="library-empty-note">Claude will suggest 3 books, and you can add more any time.</p>
+          <p>Books you save from lessons will appear here.</p>
+          <p className="library-empty-note">Tap "Recommended reading" at the bottom of any lesson to get started.</p>
         </div>
       )}
 

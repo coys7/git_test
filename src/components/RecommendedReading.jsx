@@ -15,7 +15,7 @@ export default function RecommendedReading({ lesson }) {
     async function fetch() {
       try {
         const recs = await generateBookRecs(lesson)
-        if (!cancelled) setBooks(recs.map((b, i) => ({ ...b, id: `${lesson.title}-${i}` })))
+        if (!cancelled) setBooks(recs.map((b, i) => ({ ...b, id: `${lesson.title}-${i}`, category: lesson.category })))
       } catch (e) {
         if (!cancelled) setError(e.message)
       } finally {
