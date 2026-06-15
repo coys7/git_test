@@ -1098,39 +1098,68 @@ textarea.notes-input:focus {
   font-style: italic;
 }
 
-/* ===== RECOMMENDED READING TRIGGER ===== */
-.rec-trigger-row {
-  margin-top: 1.25rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--border-soft);
+/* ===== RECOMMENDED READING ACCORDION ===== */
+.rec-block {
+  margin-top: 1.5rem;
 }
 
-.rec-trigger-btn {
-  background: none;
-  border: none;
+.rec-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: var(--vellum-dark);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--text-muted);
-  padding: 0;
-  transition: color 0.15s;
+  text-align: left;
+  gap: 1rem;
+  transition: border-color 0.15s, background 0.12s;
 }
 
-.rec-trigger-btn:hover {
+.rec-trigger:hover {
+  border-color: var(--border);
+  background: var(--vellum-mid);
+}
+
+.rec-trigger--open {
+  border-color: var(--gold);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.rec-trigger-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.rec-trigger-title {
+  font-size: 0.87rem;
+  font-weight: 600;
   color: var(--ink);
+}
+
+.rec-trigger-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
 /* ===== RECOMMENDED READING SECTION ===== */
 @keyframes recIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .rec-section {
-  margin-top: 2rem;
-  padding-top: 1.75rem;
-  border-top: 1px solid var(--border-soft);
-  animation: recIn 0.35s ease both;
+  padding: 1.25rem 1.25rem 1.5rem;
+  background: var(--vellum-dark);
+  border: 1px solid var(--gold);
+  border-top: none;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  animation: recIn 0.2s ease both;
 }
 
 .rec-label {
@@ -1744,10 +1773,6 @@ textarea.notes-input:focus {
 
 .book-cover-col {
   flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.45rem;
   width: 60px;
 }
 
@@ -1773,15 +1798,14 @@ textarea.notes-input:focus {
   color: var(--border);
 }
 
-.book-category-tag {
-  font-size: 0.6rem;
+.book-card-category {
+  display: block;
+  font-size: 0.62rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--gold);
-  text-align: center;
-  line-height: 1.3;
-  word-break: break-word;
+  margin-bottom: 0.2rem;
 }
 
 .book-info {

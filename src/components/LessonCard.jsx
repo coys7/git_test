@@ -204,19 +204,29 @@ export default function LessonCard({ lesson, loading, error, completed, onComple
             </>
           )}
         </div>
-
-        <div className="rec-trigger-row">
-          <button
-            className="rec-trigger-btn"
-            onClick={() => setShowRecs(v => !v)}
-            aria-expanded={showRecs}
-          >
-            {showRecs ? 'Hide recommendations' : 'Recommended reading →'}
-          </button>
-        </div>
       </article>
 
-      {showRecs && <RecommendedReading lesson={lesson} />}
+      <div className="rec-block">
+        <button
+          className={`rec-trigger${showRecs ? ' rec-trigger--open' : ''}`}
+          onClick={() => setShowRecs(v => !v)}
+          aria-expanded={showRecs}
+        >
+          <div className="rec-trigger-text">
+            <span className="rec-trigger-title">Recommended reading</span>
+            {!showRecs && <span className="rec-trigger-sub">Books related to today's lesson</span>}
+          </div>
+          <svg
+            width="16" height="16" viewBox="0 0 16 16"
+            fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+            style={{ transform: showRecs ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}
+            aria-hidden="true"
+          >
+            <polyline points="3,6 8,11 13,6" />
+          </svg>
+        </button>
+        {showRecs && <RecommendedReading lesson={lesson} />}
+      </div>
       {showQuiz && <Quiz lesson={lesson} />}
       {showDeeper && <GoDeeper lesson={lesson} />}
       {showStoa && <Stoa lesson={lesson} />}

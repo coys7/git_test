@@ -66,12 +66,12 @@ function BookCard({ book, onCycle, onRemove }) {
         >
           <BookCover searchQuery={book.searchQuery} title={book.title} />
         </a>
-        {book.category && (
-          <span className="book-category-tag">{book.category}</span>
-        )}
       </div>
 
       <div className="book-info">
+        {book.category && (
+          <span className="book-card-category">{book.category}</span>
+        )}
         <a
           className="book-title"
           href={amazonUrl}
