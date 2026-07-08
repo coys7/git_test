@@ -68,12 +68,10 @@ $chromePath = Get-ChromePath
 if ($chromePath) {
     $tabs = @(
         "https://access.paylocity.com/",
+        "https://app.sproutsocial.com/messages/smart",
         "https://x.com/home",
         "https://www.facebook.com/groups/TopstepCommunity/",
-        "https://www.reddit.com/r/TopStepX/",
-        "https://www.reddit.com/r/TopstepCommunity/",
-        "https://admin.topstep.com/dashboard/admin/users?filterMode=simple&filterValue=",
-        "https://social-monitor.topstep.com/dashboard"
+        "https://www.reddit.com/r/TopstepCommunity/"
     )
     # Array form of -ArgumentList correctly quotes each URL as a separate argument.
     # --new-window forces a fresh window even if Chrome is already running.
