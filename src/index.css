@@ -2168,3 +2168,67 @@ textarea.notes-input:focus {
     grid-template-columns: 160px 1fr 2rem;
   }
 }
+
+/* ===== PIN GATE ===== */
+.pin-gate {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vellum);
+  z-index: 9999;
+}
+
+.pin-gate-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: min(320px, 90vw);
+}
+
+.pin-gate-wordmark {
+  font-family: var(--font-serif);
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.01em;
+  margin-bottom: 0.5rem;
+}
+
+.pin-gate-label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.pin-gate-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.25em;
+  text-align: center;
+  background: var(--vellum-dark);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.pin-gate-input:focus {
+  border-color: var(--gold);
+}
+
+.pin-gate-error {
+  font-size: 0.8rem;
+  color: #c0392b;
+  margin: 0;
+}
+
+.pin-gate-btn {
+  width: 100%;
+  margin-top: 0.25rem;
+}

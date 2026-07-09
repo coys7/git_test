@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import PinGate from './components/PinGate'
 import Header from './components/Header'
 import BottomNav from './components/BottomNav'
 import LessonCard from './components/LessonCard'
@@ -69,18 +70,20 @@ export default function App() {
   }
 
   return (
-    <div className="app">
-      <Header
-        streak={streak.count}
-        dark={dark}
-        onDarkToggle={toggleDark}
-        onCalendarClick={handleCalendarClick}
-        calendarOpen={calendarOpen}
-      />
-      <main>
-        {renderMain()}
-      </main>
-      <BottomNav view={view} onNavigate={handleNavigate} />
-    </div>
+    <PinGate>
+      <div className="app">
+        <Header
+          streak={streak.count}
+          dark={dark}
+          onDarkToggle={toggleDark}
+          onCalendarClick={handleCalendarClick}
+          calendarOpen={calendarOpen}
+        />
+        <main>
+          {renderMain()}
+        </main>
+        <BottomNav view={view} onNavigate={handleNavigate} />
+      </div>
+    </PinGate>
   )
 }
