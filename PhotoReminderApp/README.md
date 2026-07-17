@@ -15,13 +15,76 @@ Notification scheduling lives in `src/notifications.ts`, photo handling in
 `src/photo.ts`, and local persistence in `src/storage.ts`. The UI is in
 `App.tsx`.
 
+There are two ways to get this onto your phone:
+
+- **Option A — EAS Build (recommended).** A free cloud service compiles the
+  APK for you. No Android Studio, no SDK, no cable required — you install
+  the app by scanning a QR code.
+- **Option B — Build locally with Android Studio.** Full control, builds
+  instantly on your own machine, but requires installing the Android SDK
+  and toolchain first.
+
 ---
 
-## 1. Set up your computer (one-time)
+## Option A: Build in the cloud with EAS (no Android Studio needed)
+
+1. **Get the code onto your computer:**
+
+   ```sh
+   git clone https://github.com/coys7/git_test.git
+   cd git_test/PhotoReminderApp
+   npm install
+   ```
+
+   (You still need [Node.js](https://nodejs.org) v22+ installed for this
+   part — that's unavoidable since it's a JavaScript project.)
+
+2. **Create a free Expo account** at https://expo.dev/signup (or just do it
+   from the CLI in the next step — it'll prompt you to sign up if you don't
+   have one).
+
+3. **Log in from the terminal:**
+
+   ```sh
+   npx eas-cli login
+   ```
+
+4. **Kick off the build.** This project already has an `eas.json` with a
+   `preview` profile configured to produce a plain, directly-installable
+   APK:
+
+   ```sh
+   npx eas-cli build -p android --profile preview
+   ```
+
+   The first time, it may ask a couple of setup questions (e.g. whether to
+   generate a new Android signing keystore — say yes, it manages this for
+   you). Then it uploads your project and builds it on Expo's servers.
+
+5. **Wait for the build.** The terminal prints a URL to a build page (takes
+   roughly 5-15 minutes, depending on their queue). Open that URL — once
+   it's done, there's a big **"Install"** button and QR code.
+
+6. **On your phone**, either scan the QR code with your camera, or open
+   that same build URL in your phone's browser and tap **Install**. Your
+   phone will ask to allow installing from that source the first time —
+   allow it, then install the APK. No cable, no computer connection needed
+   from here on.
+
+7. Open the app and continue at [Using the app](#using-the-app) below.
+
+That's it — steps 1-6 above replace the entire "Set up your computer" /
+"Connect your phone" / "Run it" dance in Option B.
+
+---
+
+## Option B: Build locally with Android Studio
 
 You need a computer to build the app and push it to your phone. You do
 **not** need the computer connected after that — see "standalone install"
 below.
+
+### B1. Set up your computer (one-time)
 
 1. **Install Node.js** (v22+): https://nodejs.org
 2. **Install a JDK** (17 or newer — Android Studio bundles one, see below).
@@ -56,7 +119,7 @@ below.
    https://reactnative.dev/docs/set-up-your-environment (choose **Android**
    → **React Native CLI**).
 
-## 2. Get the project and install dependencies
+### B2. Get the project and install dependencies
 
 ```sh
 git clone <this repo's URL>
@@ -64,7 +127,7 @@ cd git_test/PhotoReminderApp
 npm install
 ```
 
-## 3. Connect your Android phone
+### B3. Connect your Android phone
 
 1. On your phone: **Settings → About phone** → tap **Build number** 7 times
    to unlock **Developer options**.
@@ -80,7 +143,7 @@ npm install
 
    You should see your device listed as `device` (not `unauthorized`).
 
-## 4. Run it on your phone (development mode)
+### B4. Run it on your phone (development mode)
 
 From `PhotoReminderApp/`:
 
@@ -96,7 +159,7 @@ connected while testing**.
 If you edit the code, just save the file — the app reloads automatically
 (Fast Refresh).
 
-## 5. Install it as a standalone app (recommended for daily use)
+### B5. Install it as a standalone app (recommended for daily use)
 
 The dev-mode build above needs your computer connected to load the JS
 bundle. For the notification to keep firing every weekday **without your
@@ -118,7 +181,9 @@ fine for installing on your own phone. It's not suitable for the Play
 Store — that requires a proper release keystore, which is out of scope
 for personal use.)
 
-## 6. Using the app
+---
+
+## Using the app
 
 1. Open **Photo Reminder** on your phone.
 2. Tap **Choose Photo** and pick a photo from your camera roll.
@@ -149,13 +214,13 @@ from firing. To make sure it's reliable:
 - If your phone has an additional "auto-start" or "background activity"
   toggle (common on Xiaomi/Huawei/Oppo), enable it for this app too.
 
-## 7. Testing it without waiting until 9:25am
+## Testing it without waiting until 9:25am
 
 Easiest way: temporarily change your phone's system clock to a minute or
 two before 9:25am on a weekday, then wait — the notification should appear
 right on time. Set the clock back afterward.
 
-## 8. Verifying it survives a reboot
+## Verifying it survives a reboot
 
 1. With the reminder **ACTIVE**, restart your phone.
 2. Don't reopen the app.
@@ -186,7 +251,11 @@ right on time. Set the clock back afterward.
   `sdkmanager --licenses` (bundled with Android Studio's SDK tools) and
   accept all licenses.
 - **Notification never fires**: double-check the "Alarms & reminders"
-  permission (step 6) and battery optimization setting (step 6) — these are
-  the two most common causes on real devices.
+  permission and battery optimization setting (see "Using the app" above) —
+  these are the two most common causes on real devices.
+- **EAS build fails or hangs**: check the build logs linked from the build
+  page URL — most failures are dependency/config issues that show up
+  clearly there. You can also run `npx eas-cli build:list` to see recent
+  build statuses.
 - **General React Native environment issues**: see
   https://reactnative.dev/docs/troubleshooting
