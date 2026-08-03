@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { fetchSubredditPosts } from './lib/reddit-client.mjs';
+import { fetchSubredditPosts, getAccessToken } from './lib/reddit-client.mjs';
 import { buildReport, formatMarkdown } from './lib/report.mjs';
 
 const DEFAULT_USER_AGENT = 'subreddit-analytics-crawler/1.0 (personal use script)';
@@ -15,6 +15,8 @@ function parseArgs(argv) {
     out: null,
     json: false,
     userAgent: process.env.REDDIT_USER_AGENT || DEFAULT_USER_AGENT,
+    clientId: process.env.REDDIT_CLIENT_ID || null,
+    clientSecret: process.env.REDDIT_CLIENT_SECRET || null,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -53,6 +55,12 @@ function parseArgs(argv) {
       case '--user-agent':
         args.userAgent = next();
         break;
+      case '--client-id':
+        args.clientId = next();
+        break;
+      case '--client-secret':
+        args.clientSecret = next();
+        break;
       case '--help':
       case '-h':
         args.help = true;
@@ -79,7 +87,12 @@ Options:
   -o, --out <path>          Write the markdown report to this file (also prints to stdout)
       --json                Also write a .json file alongside the markdown report
       --user-agent <str>    Custom User-Agent header (Reddit requires a descriptive one)
+      --client-id <str>     Reddit "script" app client id (or set REDDIT_CLIENT_ID) - see README.md
+      --client-secret <str> Reddit "script" app client secret (or set REDDIT_CLIENT_SECRET)
   -h, --help                Show this help text
+
+Reddit now blocks most unauthenticated JSON requests, so --client-id/--client-secret
+(free, from https://www.reddit.com/prefs/apps) are required for reliable results.
 
 Examples:
   node crawler.mjs -s webdev,programming -d 7
@@ -105,12 +118,28 @@ async function main() {
 
   const sinceUtc = Math.floor(Date.now() / 1000) - args.days * 86400;
 
+  let accessToken = null;
+  if (args.clientId && args.clientSecret) {
+    console.error('Authenticating with Reddit...');
+    accessToken = await getAccessToken({
+      clientId: args.clientId,
+      clientSecret: args.clientSecret,
+      userAgent: args.userAgent,
+    });
+  } else {
+    console.warn(
+      'Warning: no --client-id/--client-secret provided; Reddit likely returns 403 for unauthenticated ' +
+        'requests. See README.md for how to create a free "script" app.'
+    );
+  }
+
   const subredditResults = [];
   for (const subreddit of args.subreddits) {
     console.error(`Fetching r/${subreddit} (last ${args.days}d)...`);
     const allPosts = await fetchSubredditPosts(subreddit, {
       sinceUtc,
       userAgent: args.userAgent,
+      accessToken,
       maxPages: args.maxPages,
     });
     console.error(`  -> ${allPosts.length} posts found`);
@@ -137,5 +166,8 @@ async function main() {
 
 main().catch((err) => {
   console.error('Error:', err.message);
-  process.exit(1);
+  // Set exitCode rather than calling process.exit() directly: forcing an
+  // immediate exit while fetch's underlying sockets are still being torn
+  // down can crash Node on Windows (UV_HANDLE_CLOSING assertion in libuv).
+  process.exitCode = 1;
 });

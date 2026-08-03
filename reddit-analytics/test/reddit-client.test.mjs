@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { fetchSubredditPosts } from '../lib/reddit-client.mjs';
+import { fetchSubredditPosts, getAccessToken } from '../lib/reddit-client.mjs';
 
 function rawPost(overrides = {}) {
   return {
@@ -113,5 +113,74 @@ test('fetchSubredditPosts throws on a non-retryable error status', async () => {
   await assert.rejects(
     () => fetchSubredditPosts('doesnotexist', { sinceUtc: 0, userAgent: 'test-agent', fetchImpl, pageDelayMs: 0 }),
     /404/
+  );
+});
+
+test('fetchSubredditPosts throws a helpful hint on 403 without an access token', async () => {
+  const fetchImpl = async () => ({ ok: false, status: 403, statusText: 'Blocked', json: async () => ({}) });
+
+  await assert.rejects(
+    () => fetchSubredditPosts('test', { sinceUtc: 0, userAgent: 'test-agent', fetchImpl, pageDelayMs: 0 }),
+    /client-id/
+  );
+});
+
+test('fetchSubredditPosts hits oauth.reddit.com with a Bearer header when given an accessToken', async () => {
+  const page1 = listingResponse([rawPost({ id: 'new1', created_utc: 900 })], null);
+
+  let seenUrl;
+  let seenHeaders;
+  const fetchImpl = async (url, options) => {
+    seenUrl = String(url);
+    seenHeaders = options.headers;
+    return { ok: true, status: 200, json: async () => page1 };
+  };
+
+  const posts = await fetchSubredditPosts('test', {
+    sinceUtc: 500,
+    userAgent: 'test-agent',
+    accessToken: 'tok_abc123',
+    fetchImpl,
+    pageDelayMs: 0,
+  });
+
+  assert.equal(posts.length, 1);
+  assert.match(seenUrl, /^https:\/\/oauth\.reddit\.com\/r\/test\/new\?/);
+  assert.doesNotMatch(seenUrl, /\.json/);
+  assert.equal(seenHeaders.Authorization, 'Bearer tok_abc123');
+});
+
+test('getAccessToken posts client_credentials with Basic auth and returns the token', async () => {
+  let seenUrl;
+  let seenOptions;
+  const fetchImpl = async (url, options) => {
+    seenUrl = String(url);
+    seenOptions = options;
+    return { ok: true, status: 200, json: async () => ({ access_token: 'tok_xyz', expires_in: 3600 }) };
+  };
+
+  const token = await getAccessToken({
+    clientId: 'my-id',
+    clientSecret: 'my-secret',
+    userAgent: 'test-agent',
+    fetchImpl,
+  });
+
+  assert.equal(token, 'tok_xyz');
+  assert.equal(seenUrl, 'https://www.reddit.com/api/v1/access_token');
+  assert.equal(seenOptions.method, 'POST');
+  assert.equal(seenOptions.body, 'grant_type=client_credentials');
+  assert.equal(
+    seenOptions.headers.Authorization,
+    `Basic ${Buffer.from('my-id:my-secret').toString('base64')}`
+  );
+});
+
+test('getAccessToken throws when Reddit rejects the credentials', async () => {
+  const fetchImpl = async () => ({ ok: false, status: 401, statusText: 'Unauthorized' });
+
+  await assert.rejects(
+    () => getAccessToken({ clientId: 'bad', clientSecret: 'bad', userAgent: 'test-agent', fetchImpl }),
+    /401/
   );
 });
