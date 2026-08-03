@@ -8,6 +8,9 @@
     "start": "node crawler.mjs",
     "test": "node --test test/*.test.mjs"
   },
+  "dependencies": {
+    "playwright": "^1.48.0"
+  },
   "engines": {
     "node": ">=18"
   }

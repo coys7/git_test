@@ -2,6 +2,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fetchSubredditPosts, getAccessToken } from './lib/reddit-client.mjs';
+import { fetchSubredditPostsViaBrowser, launchBrowser } from './lib/reddit-browser-client.mjs';
 import { buildReport, formatMarkdown } from './lib/report.mjs';
 
 const DEFAULT_USER_AGENT = 'subreddit-analytics-crawler/1.0 (personal use script)';
@@ -86,13 +87,15 @@ Options:
       --max-pages <n>       Max pages of 100 posts to fetch per subreddit (default: 10)
   -o, --out <path>          Write the markdown report to this file (also prints to stdout)
       --json                Also write a .json file alongside the markdown report
-      --user-agent <str>    Custom User-Agent header (Reddit requires a descriptive one)
-      --client-id <str>     Reddit "script" app client id (or set REDDIT_CLIENT_ID) - see README.md
-      --client-secret <str> Reddit "script" app client secret (or set REDDIT_CLIENT_SECRET)
+      --user-agent <str>    Custom User-Agent header
+      --client-id <str>     (Advanced, optional) Reddit "script" app client id (or set REDDIT_CLIENT_ID)
+      --client-secret <str> (Advanced, optional) Reddit "script" app client secret (or set REDDIT_CLIENT_SECRET)
   -h, --help                Show this help text
 
-Reddit now blocks most unauthenticated JSON requests, so --client-id/--client-secret
-(free, from https://www.reddit.com/prefs/apps) are required for reliable results.
+By default this drives a real headless browser to old.reddit.com to read post
+data - no Reddit account or signup needed, just "npm install" first. If you
+pass --client-id/--client-secret (see README.md for how to get them, free),
+it uses Reddit's official API instead, which is faster.
 
 Examples:
   node crawler.mjs -s webdev,programming -d 7
@@ -117,50 +120,66 @@ async function main() {
   }
 
   const sinceUtc = Math.floor(Date.now() / 1000) - args.days * 86400;
+  const useApi = Boolean(args.clientId && args.clientSecret);
 
   let accessToken = null;
-  if (args.clientId && args.clientSecret) {
-    console.error('Authenticating with Reddit...');
+  let browser = null;
+
+  if (useApi) {
+    console.error('Authenticating with the Reddit API...');
     accessToken = await getAccessToken({
       clientId: args.clientId,
       clientSecret: args.clientSecret,
       userAgent: args.userAgent,
     });
   } else {
-    console.warn(
-      'Warning: no --client-id/--client-secret provided; Reddit likely returns 403 for unauthenticated ' +
-        'requests. See README.md for how to create a free "script" app.'
-    );
+    console.error('No --client-id/--client-secret given - using browser mode (no signup required)...');
+    browser = await launchBrowser();
   }
 
-  const subredditResults = [];
-  for (const subreddit of args.subreddits) {
-    console.error(`Fetching r/${subreddit} (last ${args.days}d)...`);
-    const allPosts = await fetchSubredditPosts(subreddit, {
-      sinceUtc,
-      userAgent: args.userAgent,
-      accessToken,
-      maxPages: args.maxPages,
-    });
-    console.error(`  -> ${allPosts.length} posts found`);
-    subredditResults.push({ subreddit, allPosts });
-  }
-
-  const report = buildReport({ subredditResults, days: args.days, excludeKeywords: args.exclude });
-  const markdown = formatMarkdown(report);
-
-  console.log(markdown);
-
-  if (args.out) {
-    await mkdir(path.dirname(args.out), { recursive: true });
-    await writeFile(args.out, markdown, 'utf8');
-    console.error(`\nSaved report to ${args.out}`);
-
-    if (args.json) {
-      const jsonPath = args.out.replace(/\.md$/, '') + '.json';
-      await writeFile(jsonPath, JSON.stringify(report, null, 2), 'utf8');
-      console.error(`Saved raw data to ${jsonPath}`);
+  try {
+    const subredditResults = [];
+    for (const subreddit of args.subreddits) {
+      console.error(`Fetching r/${subreddit} (last ${args.days}d)...`);
+      const allPosts = useApi
+        ? await fetchSubredditPosts(subreddit, {
+            sinceUtc,
+            userAgent: args.userAgent,
+            accessToken,
+            maxPages: args.maxPages,
+          })
+        : await fetchSubredditPostsViaBrowser(subreddit, {
+            sinceUtc,
+            browser,
+            maxPages: args.maxPages,
+          });
+      console.error(`  -> ${allPosts.length} posts found`);
+      if (allPosts.length === 0) {
+        console.warn(
+          `  Warning: 0 posts found for r/${subreddit} - double check the subreddit name and timeframe.`
+        );
+      }
+      subredditResults.push({ subreddit, allPosts });
     }
+
+    const report = buildReport({ subredditResults, days: args.days, excludeKeywords: args.exclude });
+    const markdown = formatMarkdown(report);
+
+    console.log(markdown);
+
+    if (args.out) {
+      await mkdir(path.dirname(args.out), { recursive: true });
+      await writeFile(args.out, markdown, 'utf8');
+      console.error(`\nSaved report to ${args.out}`);
+
+      if (args.json) {
+        const jsonPath = args.out.replace(/\.md$/, '') + '.json';
+        await writeFile(jsonPath, JSON.stringify(report, null, 2), 'utf8');
+        console.error(`Saved raw data to ${jsonPath}`);
+      }
+    }
+  } finally {
+    if (browser) await browser.close();
   }
 }
 
