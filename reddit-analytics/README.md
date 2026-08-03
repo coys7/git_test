@@ -12,14 +12,17 @@ No Reddit account or API signup needed. Requires Node.js 18+.
 ```bash
 cd reddit-analytics
 npm install
+npx playwright install chromium
 ```
 
-That's it. `npm install` pulls in [Playwright](https://playwright.dev), which
-drives a real (headless) Chromium browser to read Reddit pages like a normal
-visitor — Reddit blocks plain, non-browser HTTP requests to its JSON API, so
-this sidesteps that entirely with zero setup on your end. The first
-`npm install` downloads a Chromium binary (~150-300MB), which is a one-time
-cost.
+`npm install` pulls in [Playwright](https://playwright.dev), which drives a
+real (headless) Chromium browser to read Reddit pages like a normal visitor —
+Reddit blocks plain, non-browser HTTP requests to its JSON API, so this
+sidesteps that entirely with zero signup on your end. `npx playwright install
+chromium` downloads the actual browser binary (~150-300MB), which is a
+one-time cost; `npm install`'s automatic postinstall download doesn't always
+fire (npm config, antivirus, etc. can block it), so run this explicitly if
+you see an "Executable doesn't exist" error.
 
 ## Usage
 
