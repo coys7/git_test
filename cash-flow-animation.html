@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Express Funded Account → Topstep Brokerage</title>
+<style>
+  :root {
+    --gold: #F5A623;
+    --gold-light: #FFD87A;
+    --gold-deep: #C97F12;
+    --purple-deep: #2D1B4E;
+    --purple-mid: #4A2E7A;
+    --purple-bright: #8B4FE0;
+    --bg: #050506;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  .stage {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 8%, rgba(245, 166, 35, 0.16), transparent 70%),
+      radial-gradient(ellipse 65% 45% at 50% 92%, rgba(139, 79, 224, 0.20), transparent 70%),
+      radial-gradient(ellipse 100% 100% at 50% 50%, #0b0910 0%, #050506 60%, #020202 100%);
+  }
+
+  .scene {
+    position: relative;
+    width: min(92vmin, 900px);
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 18px;
+  }
+
+  /* faint ambient particles of dust/light in bg */
+  .ambient {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.15), transparent),
+      radial-gradient(1px 1px at 75% 60%, rgba(255,255,255,0.12), transparent),
+      radial-gradient(1.5px 1.5px at 40% 80%, rgba(255,255,255,0.10), transparent),
+      radial-gradient(1px 1px at 85% 20%, rgba(255,255,255,0.10), transparent),
+      radial-gradient(1px 1px at 10% 65%, rgba(255,255,255,0.08), transparent);
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  /* ---------- TOP CARD: Express Funded Account ---------- */
+  .top-card {
+    position: absolute;
+    left: 50%;
+    top: 13%;
+    width: 42%;
+    min-width: 220px;
+    padding: 5.5% 4%;
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 55%, var(--gold-deep) 100%);
+    border-radius: 14px;
+    box-shadow:
+      0 0 0 1px rgba(255, 216, 122, 0.4) inset,
+      0 18px 40px -10px rgba(245, 166, 35, 0.55),
+      0 0 60px -10px rgba(245, 166, 35, 0.45);
+    transform: translate(-50%, -50%) rotate(-13deg);
+    transform-origin: 60% 40%;
+    animation: tiltPour 4.5s ease-in-out infinite;
+    z-index: 3;
+  }
+
+  .top-card .label {
+    display: block;
+    text-align: center;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    font-size: clamp(11px, 2.6vmin, 19px);
+    color: #2a1a04;
+    text-transform: uppercase;
+    line-height: 1.25;
+  }
+
+  .top-card .sub {
+    display: block;
+    text-align: center;
+    margin-top: 4px;
+    font-size: clamp(7px, 1.3vmin, 10px);
+    letter-spacing: 0.18em;
+    color: rgba(42, 26, 4, 0.6);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  @keyframes tiltPour {
+    0%, 100% { transform: translate(-50%, -50%) rotate(-13deg); }
+    50%      { transform: translate(-50%, -50%) rotate(-16deg); }
+  }
+
+  /* ---------- BOTTOM CARD: Topstep Brokerage ---------- */
+  .bottom-card {
+    position: absolute;
+    left: 50%;
+    top: 84%;
+    width: 54%;
+    min-width: 250px;
+    padding: 5.5% 4%;
+    background: linear-gradient(150deg, var(--purple-mid) 0%, var(--purple-deep) 65%, #1c1033 100%);
+    border-radius: 14px;
+    box-shadow:
+      0 0 0 1px rgba(139, 79, 224, 0.35) inset,
+      0 20px 50px -12px rgba(45, 27, 78, 0.8),
+      0 0 70px -8px rgba(139, 79, 224, 0.35);
+    transform: translate(-50%, -50%);
+    z-index: 3;
+  }
+
+  .bottom-card .label {
+    display: block;
+    text-align: center;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    font-size: clamp(12px, 2.9vmin, 21px);
+    color: #FFD87A;
+    text-transform: uppercase;
+    line-height: 1.25;
+  }
+
+  .bottom-card .sub {
+    display: block;
+    text-align: center;
+    margin-top: 4px;
+    font-size: clamp(7px, 1.3vmin, 10px);
+    letter-spacing: 0.18em;
+    color: rgba(255, 216, 122, 0.55);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  /* ---------- Pooling glow where stream lands ---------- */
+  .pool-glow {
+    position: absolute;
+    left: 50%;
+    top: 76%;
+    width: 60%;
+    height: 22%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(139, 79, 224, 0.55) 0%, rgba(139, 79, 224, 0.25) 35%, transparent 72%);
+    filter: blur(6px);
+    z-index: 2;
+    animation: poolPulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes poolPulse {
+    0%, 100% { opacity: 0.55; transform: translate(-50%, -50%) scale(0.92); }
+    50%      { opacity: 0.95; transform: translate(-50%, -50%) scale(1.06); }
+  }
+
+  /* ---------- Stream of falling cash ---------- */
+  .stream {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .particle {
+    position: absolute;
+    left: calc(var(--sx) * 1%);
+    top: calc(var(--sy) * 1%);
+    transform: translate(-50%, -50%);
+    animation-name: fall;
+    animation-duration: var(--dur);
+    animation-delay: var(--delay);
+    animation-timing-function: cubic-bezier(0.45, 0.05, 0.65, 1);
+    animation-iteration-count: infinite;
+    will-change: left, top, color, opacity, transform;
+  }
+
+  .particle.coin {
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 10px currentColor, 0 0 2px rgba(255,255,255,0.6) inset;
+  }
+
+  .particle.bill {
+    font-weight: 800;
+    font-size: var(--size);
+    color: currentColor;
+    text-shadow: 0 0 10px currentColor;
+  }
+
+  @keyframes fall {
+    0% {
+      left: calc(var(--sx) * 1%);
+      top: calc(var(--sy) * 1%);
+      color: var(--gold-light);
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.5) rotate(0deg);
+    }
+    8% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotate(15deg);
+    }
+    45% {
+      left: calc(var(--mx) * 1%);
+      color: #E08A3E;
+      transform: translate(-50%, -50%) scale(1) rotate(-10deg);
+    }
+    80% {
+      opacity: 1;
+      color: var(--purple-bright);
+    }
+    100% {
+      left: calc(var(--ex) * 1%);
+      top: calc(var(--ey) * 1%);
+      color: var(--purple-bright);
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.45) rotate(30deg);
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="scene" id="scene">
+      <div class="ambient"></div>
+
+      <div class="top-card">
+        <span class="label">Express Funded<br />Account</span>
+        <span class="sub">Funded Trading</span>
+      </div>
+
+      <div class="stream" id="stream"></div>
+
+      <div class="pool-glow"></div>
+
+      <div class="bottom-card">
+        <span class="label">Topstep Brokerage</span>
+        <span class="sub">Real Capital</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const stream = document.getElementById('stream');
+      const COUNT = 42;
+      const GLYPHS = ['$', '$', '$'];
+
+      function rand(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      for (let i = 0; i < COUNT; i++) {
+        const el = document.createElement('div');
+        const isCoin = Math.random() < 0.45;
+
+        // Start near the tilted top card's lower edge, converge toward the
+        // bottom card's top edge in a narrowing "pour" funnel.
+        const sx = rand(40, 60);
+        const mx = rand(46, 54);
+        const ex = rand(47, 53);
+        const sy = rand(21, 25);
+        const ey = rand(75, 79);
+
+        const dur = rand(1.7, 2.6);
+        const delay = -rand(0, dur); // negative delay -> already mid-flight on load
+
+        el.style.setProperty('--sx', sx.toFixed(2));
+        el.style.setProperty('--mx', mx.toFixed(2));
+        el.style.setProperty('--ex', ex.toFixed(2));
+        el.style.setProperty('--sy', sy.toFixed(2));
+        el.style.setProperty('--ey', ey.toFixed(2));
+        el.style.setProperty('--dur', dur.toFixed(2) + 's');
+        el.style.setProperty('--delay', delay.toFixed(2) + 's');
+
+        if (isCoin) {
+          el.className = 'particle coin';
+          const size = rand(8, 15);
+          el.style.setProperty('--size', size.toFixed(1) + 'px');
+        } else {
+          el.className = 'particle bill';
+          const size = rand(12, 20);
+          el.style.setProperty('--size', size.toFixed(1) + 'px');
+          el.textContent = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+        }
+
+        stream.appendChild(el);
+      }
+    })();
+  </script>
+</body>
+</html>
