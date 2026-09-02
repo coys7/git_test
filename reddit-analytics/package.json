@@ -1,0 +1,17 @@
+{
+  "name": "reddit-analytics",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Crawls one or more subreddits and reports posts, comments, and upvotes over a timeframe, with optional title-based exclusions.",
+  "scripts": {
+    "start": "node crawler.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.48.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
