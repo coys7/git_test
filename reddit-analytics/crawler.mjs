@@ -84,18 +84,17 @@ Options:
   -s, --subreddits <list>   Comma-separated subreddit names (max 3 recommended), no "r/" prefix
   -d, --days <n>            Timeframe in days to look back (default: 7)
   -x, --exclude <list>      Comma-separated title substrings to exclude from totals (case-insensitive)
-      --max-pages <n>       Max pages of 100 posts to fetch per subreddit (default: 10)
+      --max-pages <n>       Max scroll batches / API pages to fetch per subreddit (default: 10)
   -o, --out <path>          Write the markdown report to this file (also prints to stdout)
       --json                Also write a .json file alongside the markdown report
       --user-agent <str>    Custom User-Agent header
-      --client-id <str>     Reddit "script" app client id (or set REDDIT_CLIENT_ID) - see README.md Setup
-      --client-secret <str> Reddit "script" app client secret (or set REDDIT_CLIENT_SECRET)
+      --client-id <str>     (Optional) Reddit "script" app client id (or set REDDIT_CLIENT_ID)
+      --client-secret <str> (Optional) Reddit "script" app client secret (or set REDDIT_CLIENT_SECRET)
   -h, --help                Show this help text
 
-Pass --client-id/--client-secret (free, see README.md) to use Reddit's official
-API. Without them, this falls back to driving a headless browser to
-old.reddit.com - but Reddit now requires a login to browse it, so that
-no-signup fallback currently fails; the API path is the reliable one.
+By default this drives a real headless browser to www.reddit.com to read post
+data - no Reddit account or signup needed, just "npm install" first. If you
+pass --client-id/--client-secret, it uses Reddit's official API instead.
 
 Examples:
   node crawler.mjs -s webdev,programming -d 7
