@@ -5,24 +5,47 @@ total comments, and total upvotes — with the ability to exclude posts by
 title keyword (e.g. "don't count the post that says Giveaway") from the
 totals.
 
-No Reddit account or API signup needed. Requires Node.js 18+.
+Requires Node.js 18+ and a free Reddit "script" app (see Setup below) —
+Reddit now requires a logged-in session to browse even old.reddit.com, so
+the no-signup browser fallback this tool originally used no longer works.
+The official API path below is the reliable one.
 
 ## Setup
 
 ```bash
 cd reddit-analytics
 npm install
-npx playwright install chromium
 ```
 
-`npm install` pulls in [Playwright](https://playwright.dev), which drives a
-real (headless) Chromium browser to read Reddit pages like a normal visitor —
-Reddit blocks plain, non-browser HTTP requests to its JSON API, so this
-sidesteps that entirely with zero signup on your end. `npx playwright install
-chromium` downloads the actual browser binary (~150-300MB), which is a
-one-time cost; `npm install`'s automatic postinstall download doesn't always
-fire (npm config, antivirus, etc. can block it), so run this explicitly if
-you see an "Executable doesn't exist" error.
+Then get free API credentials (no Reddit username/password needed, just a
+few minutes):
+
+1. Log into Reddit and go to <https://www.reddit.com/prefs/apps>.
+2. Click **create another app...** at the bottom.
+3. Choose type **script**, give it any name (e.g. `subreddit-analytics`),
+   and put anything in the required "redirect uri" field (e.g.
+   `http://localhost:8080` — it's unused for this flow).
+4. Click **create app**. You'll see a client ID (the string under the app
+   name/type) and a **secret**.
+5. Provide those to the CLI either as flags or environment variables:
+
+```bash
+# flags
+node crawler.mjs -s webdev -d 7 --client-id YOUR_ID --client-secret YOUR_SECRET
+
+# or environment variables (PowerShell)
+$env:REDDIT_CLIENT_ID="YOUR_ID"
+$env:REDDIT_CLIENT_SECRET="YOUR_SECRET"
+node crawler.mjs -s webdev -d 7
+
+# or environment variables (bash/zsh)
+export REDDIT_CLIENT_ID="YOUR_ID"
+export REDDIT_CLIENT_SECRET="YOUR_SECRET"
+node crawler.mjs -s webdev -d 7
+```
+
+This uses the read-only `client_credentials` grant, scoped to public data —
+no Reddit password is ever entered anywhere in this tool.
 
 ## Usage
 
@@ -60,9 +83,9 @@ node crawler.mjs -s webdev -d 7 -x "Giveaway,Mod Announcement,Meta"
 | `--max-pages <n>` | Max pages of ~25 posts fetched per subreddit (rate-limit safety cap) | `10` |
 | `-o, --out <path>` | Write the markdown report to a file (also prints to stdout) | none |
 | `--json` | Also write a `.json` file with the raw report data next to `--out` | off |
-| `--user-agent <str>` | Custom browser User-Agent string | a recent desktop Chrome string |
-| `--client-id <str>` | *(Advanced, optional)* Reddit script app client id — switches to the faster official API instead of browser scraping (or set `REDDIT_CLIENT_ID`) | none |
-| `--client-secret <str>` | *(Advanced, optional)* Reddit script app client secret (or set `REDDIT_CLIENT_SECRET`) | none |
+| `--user-agent <str>` | Custom browser/API User-Agent string | a recent desktop Chrome string |
+| `--client-id <str>` | Reddit script app client id (see Setup above) — required for reliable results (or set `REDDIT_CLIENT_ID`) | none |
+| `--client-secret <str>` | Reddit script app client secret (or set `REDDIT_CLIENT_SECRET`) | none |
 
 ## What the report includes
 
@@ -75,25 +98,24 @@ For the combined set of subreddits, and for each subreddit individually:
 
 ## How it works
 
-- By default, launches headless Chromium and navigates to
-  `https://old.reddit.com/r/<subreddit>/new/` (the simpler, server-rendered
-  version of Reddit), reading post title/score/comment-count/timestamp
-  straight out of the page, and following the "next" pagination link until
-  it passes the requested timeframe. Stickied/pinned posts are ignored for
-  that cutoff check, since Reddit shows them out of chronological order.
+- With `--client-id`/`--client-secret`, exchanges them for a short-lived
+  app-only OAuth token and fetches `https://oauth.reddit.com/r/<subreddit>/new`,
+  paginating with Reddit's `after` cursor until it reaches posts older than
+  the requested timeframe. Stickied/pinned posts are ignored for that cutoff
+  check, since Reddit shows them out of chronological order.
 - Only counts a post's current `score` (net upvotes) and comment count —
   Reddit doesn't expose separate upvote/downvote counts or a historical
-  comment-count-over-time breakdown to anonymous visitors.
-- Adds a short delay between page loads to be a well-behaved visitor.
+  comment-count-over-time breakdown.
 
-### Advanced: official API mode
+### Fallback: no-signup browser mode (currently broken)
 
-If you pass `--client-id`/`--client-secret` (from a free Reddit "script" app,
-see <https://www.reddit.com/prefs/apps> → "create another app..." → type
-**script**), the crawler uses Reddit's official OAuth API instead
-(`oauth.reddit.com`), which is faster and doesn't need a browser. No Reddit
-username/password is required — just the app-only `client_credentials` grant,
-scoped to public read-only data.
+Without credentials, the crawler falls back to launching headless Chromium
+and reading `https://old.reddit.com/r/<subreddit>/new/` directly, the way it
+originally worked. **As of September 2026, Reddit redirects logged-out
+requests to old.reddit.com to a login page**, so this fallback reliably
+fails now — it'll throw a clear "Reddit redirected ... to a login page"
+error rather than silently reporting zero posts. Left in the code in case
+Reddit reverts this; use `--client-id`/`--client-secret` in the meantime.
 
 ## Notes / limitations
 
@@ -101,20 +123,16 @@ scoped to public read-only data.
   than `maxPages` pages cover; increase `--max-pages` if the reported post
   count looks truncated (the CLI logs how many posts it found per
   subreddit, and warns if it found zero).
-- DOM scraping is inherently more fragile than an API — if Reddit changes
-  old.reddit.com's markup, extraction may need updating in
-  `lib/reddit-browser-client.mjs`. Unauthenticated/anonymous-only
-  subreddits are supported; private or quarantined subreddits are not.
-- If a subreddit comes back with 0 posts unexpectedly (browser mode only),
-  the CLI saves a snapshot of what the browser actually loaded to
-  `debug/<subreddit>.html` and `debug/<subreddit>.png` — send those along if
-  you report the issue, since it's usually a sign Reddit changed something
-  about the page.
+- DOM scraping (fallback mode) is inherently more fragile than an API — if
+  Reddit changes old.reddit.com's markup, extraction may need updating in
+  `lib/reddit-browser-client.mjs`. If a subreddit comes back with 0 posts
+  unexpectedly, the CLI saves a snapshot of what the browser actually loaded
+  to `debug/<subreddit>.html` and `debug/<subreddit>.png` for inspection.
 - This tool was built and unit-tested (including against a realistic HTML
   fixture, offline) in a sandboxed environment that does not have network
-  access to reddit.com. It has not been run against live Reddit data — run
-  it somewhere with normal internet access and let me know if anything
-  looks off.
+  access to reddit.com — issues that only show up against live Reddit data
+  (like the login-wall change above) get diagnosed from what's reported
+  back after a real run.
 
 ## Tests
 

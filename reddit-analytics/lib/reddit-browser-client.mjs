@@ -37,6 +37,14 @@ export function parseScore(scoreTitle, scoreText) {
   return Math.round(value);
 }
 
+export function isLoginRedirect(finalUrl) {
+  try {
+    return new URL(finalUrl).pathname.startsWith('/login');
+  } catch {
+    return false;
+  }
+}
+
 export function parseComments(commentsText) {
   if (!commentsText) return 0;
   const match = String(commentsText).replace(/,/g, '').match(/\d+/);
@@ -155,6 +163,13 @@ export async function fetchSubredditPostsViaBrowser(
         throw new Error(`Failed to load ${url}: HTTP ${response ? response.status() : 'no response'}`);
       }
       if (page.url() !== url) {
+        if (isLoginRedirect(page.url())) {
+          throw new Error(
+            `Reddit redirected r/${subreddit} to a login page (${page.url()}). Reddit now requires a ` +
+              'logged-in session to browse old.reddit.com, so no-signup browser mode no longer works. ' +
+              'Use --client-id/--client-secret instead (free Reddit "script" app - see README.md Setup).'
+          );
+        }
         console.error(`  Note: r/${subreddit} request redirected to ${page.url()}`);
       }
       if (await isBlockedPage(page)) {

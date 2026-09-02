@@ -9,6 +9,7 @@ import {
   normalizePost,
   parseScore,
   parseComments,
+  isLoginRedirect,
 } from '../lib/reddit-browser-client.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -38,6 +39,15 @@ test('parseScore prefers the exact title attribute over abbreviated text', () =>
   assert.equal(parseScore(null, '95'), 95);
   assert.equal(parseScore('•', '•'), 0);
   assert.equal(parseScore(null, null), 0);
+});
+
+test('isLoginRedirect detects Reddit login-wall redirects', () => {
+  assert.equal(
+    isLoginRedirect('https://old.reddit.com/login/?reason=lor2&dest=https%3A%2F%2Fold.reddit.com%2Fr%2Ftest%2Fnew%2F'),
+    true
+  );
+  assert.equal(isLoginRedirect('https://old.reddit.com/r/test/new/'), false);
+  assert.equal(isLoginRedirect('not a url'), false);
 });
 
 test('parseComments extracts the leading integer', () => {

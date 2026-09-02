@@ -88,14 +88,14 @@ Options:
   -o, --out <path>          Write the markdown report to this file (also prints to stdout)
       --json                Also write a .json file alongside the markdown report
       --user-agent <str>    Custom User-Agent header
-      --client-id <str>     (Advanced, optional) Reddit "script" app client id (or set REDDIT_CLIENT_ID)
-      --client-secret <str> (Advanced, optional) Reddit "script" app client secret (or set REDDIT_CLIENT_SECRET)
+      --client-id <str>     Reddit "script" app client id (or set REDDIT_CLIENT_ID) - see README.md Setup
+      --client-secret <str> Reddit "script" app client secret (or set REDDIT_CLIENT_SECRET)
   -h, --help                Show this help text
 
-By default this drives a real headless browser to old.reddit.com to read post
-data - no Reddit account or signup needed, just "npm install" first. If you
-pass --client-id/--client-secret (see README.md for how to get them, free),
-it uses Reddit's official API instead, which is faster.
+Pass --client-id/--client-secret (free, see README.md) to use Reddit's official
+API. Without them, this falls back to driving a headless browser to
+old.reddit.com - but Reddit now requires a login to browse it, so that
+no-signup fallback currently fails; the API path is the reliable one.
 
 Examples:
   node crawler.mjs -s webdev,programming -d 7
