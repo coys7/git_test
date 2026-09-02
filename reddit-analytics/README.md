@@ -105,6 +105,11 @@ scoped to public read-only data.
   old.reddit.com's markup, extraction may need updating in
   `lib/reddit-browser-client.mjs`. Unauthenticated/anonymous-only
   subreddits are supported; private or quarantined subreddits are not.
+- If a subreddit comes back with 0 posts unexpectedly (browser mode only),
+  the CLI saves a snapshot of what the browser actually loaded to
+  `debug/<subreddit>.html` and `debug/<subreddit>.png` — send those along if
+  you report the issue, since it's usually a sign Reddit changed something
+  about the page.
 - This tool was built and unit-tested (including against a realistic HTML
   fixture, offline) in a sandboxed environment that does not have network
   access to reddit.com. It has not been run against live Reddit data — run

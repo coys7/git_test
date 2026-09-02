@@ -1,4 +1,6 @@
 import { chromium } from 'playwright';
+import { mkdir, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 
 const OLD_REDDIT_BASE = 'https://old.reddit.com';
 
@@ -94,6 +96,19 @@ export async function extractPostsFromPage(page) {
   return { rawPosts: rawPosts.filter((p) => !p.promoted), nextHref };
 }
 
+async function saveDebugArtifacts(page, debugDir, subreddit) {
+  try {
+    await mkdir(debugDir, { recursive: true });
+    const htmlPath = path.join(debugDir, `${subreddit}.html`);
+    const pngPath = path.join(debugDir, `${subreddit}.png`);
+    await writeFile(htmlPath, await page.content(), 'utf8');
+    await page.screenshot({ path: pngPath, fullPage: true });
+    console.error(`  Debug: saved ${htmlPath} and ${pngPath} - send these if the post count looks wrong`);
+  } catch (err) {
+    console.error(`  Debug: failed to save diagnostics for r/${subreddit}: ${err.message}`);
+  }
+}
+
 async function isBlockedPage(page) {
   return page.evaluate(() => {
     const text = (document.body?.textContent || '').toLowerCase();
@@ -102,7 +117,9 @@ async function isBlockedPage(page) {
       title.includes('blocked') ||
       text.includes('you have been blocked') ||
       text.includes('whoa there') ||
-      text.includes('network security')
+      text.includes('network security') ||
+      text.includes('please verify you are a human') ||
+      text.includes("we're sorry, but you'll have to verify")
     );
   });
 }
@@ -114,7 +131,15 @@ async function isBlockedPage(page) {
  */
 export async function fetchSubredditPostsViaBrowser(
   subreddit,
-  { sinceUtc, browser, maxPages = 10, pageDelayMs = 1500, navTimeoutMs = 30000, userAgent = DEFAULT_USER_AGENT }
+  {
+    sinceUtc,
+    browser,
+    maxPages = 10,
+    pageDelayMs = 1500,
+    navTimeoutMs = 30000,
+    userAgent = DEFAULT_USER_AGENT,
+    debugDir = null,
+  }
 ) {
   const context = await browser.newContext({ userAgent, viewport: { width: 1280, height: 1600 } });
   const page = await context.newPage();
@@ -129,12 +154,18 @@ export async function fetchSubredditPostsViaBrowser(
       if (!response || !response.ok()) {
         throw new Error(`Failed to load ${url}: HTTP ${response ? response.status() : 'no response'}`);
       }
+      if (page.url() !== url) {
+        console.error(`  Note: r/${subreddit} request redirected to ${page.url()}`);
+      }
       if (await isBlockedPage(page)) {
         throw new Error(`Reddit showed an anti-bot block page for r/${subreddit} (${url})`);
       }
 
       const { rawPosts, nextHref } = await extractPostsFromPage(page);
-      if (rawPosts.length === 0) break;
+      if (rawPosts.length === 0) {
+        if (debugDir) await saveDebugArtifacts(page, debugDir, subreddit);
+        break;
+      }
 
       let sawPostOlderThanWindow = false;
       for (const raw of rawPosts) {

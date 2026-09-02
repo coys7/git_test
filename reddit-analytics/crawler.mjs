@@ -152,11 +152,13 @@ async function main() {
             sinceUtc,
             browser,
             maxPages: args.maxPages,
+            debugDir: 'debug',
           });
       console.error(`  -> ${allPosts.length} posts found`);
       if (allPosts.length === 0) {
         console.warn(
-          `  Warning: 0 posts found for r/${subreddit} - double check the subreddit name and timeframe.`
+          `  Warning: 0 posts found for r/${subreddit} - double check the subreddit name and timeframe. ` +
+            (useApi ? '' : 'A snapshot was saved to the debug/ folder - send it over if this looks wrong.')
         );
       }
       subredditResults.push({ subreddit, allPosts });

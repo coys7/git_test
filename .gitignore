@@ -5,3 +5,4 @@ dist
 .DS_Store
 *.local
 reddit-analytics/reports/
+reddit-analytics/debug/
