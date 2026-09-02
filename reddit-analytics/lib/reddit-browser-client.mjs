@@ -52,6 +52,28 @@ export function parseCreatedUtc(createdRaw) {
   return Number.isNaN(ms) ? null : Math.floor(ms / 1000);
 }
 
+/**
+ * Reddit's site does client-side redirects/reloads shortly after the initial
+ * page load, which can tear down the JS execution context out from under an
+ * in-flight page.evaluate() (Playwright surfaces this as "Execution context
+ * was destroyed, most likely because of a navigation"). That's a transient
+ * timing issue, not a real failure - wait for things to settle and retry.
+ */
+async function evaluateWithRetry(page, fn, { retries = 3, retryDelayMs = 800 } = {}) {
+  let lastErr;
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    try {
+      return await page.evaluate(fn);
+    } catch (err) {
+      lastErr = err;
+      if (!/execution context was destroyed|target closed/i.test(err.message)) throw err;
+      await page.waitForLoadState('domcontentloaded').catch(() => {});
+      await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+    }
+  }
+  throw lastErr;
+}
+
 function isStickiedAttrs(attrs) {
   return attrs.stickied === 'true' || attrs['is-stickied'] === 'true' || attrs.pinned === 'true';
 }
@@ -94,7 +116,7 @@ export function normalizePost(attrs, subreddit) {
  * with page.setContent() against a fixture, with no network access required.
  */
 export async function extractPostsFromPage(page) {
-  return page.evaluate(() => {
+  return evaluateWithRetry(page, () => {
     const els = Array.from(document.querySelectorAll('shreddit-post'));
     return els.map((el) => {
       const attrs = {};
@@ -122,7 +144,7 @@ async function saveDebugArtifacts(page, debugDir, subreddit, sampleAttrs) {
 }
 
 async function isBlockedPage(page) {
-  return page.evaluate(() => {
+  return evaluateWithRetry(page, () => {
     const text = (document.body?.textContent || '').toLowerCase();
     const title = (document.title || '').toLowerCase();
     return (
@@ -166,6 +188,10 @@ export async function fetchSubredditPostsViaBrowser(
     if (!response || !response.ok()) {
       throw new Error(`Failed to load ${url}: HTTP ${response ? response.status() : 'no response'}`);
     }
+    // Reddit's page does client-side redirects/reloads shortly after the
+    // initial load - give those a moment to settle before touching the DOM,
+    // so we don't race a navigation that would tear down our JS context.
+    await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
     if (isLoginRedirect(page.url())) {
       throw new Error(
         `Reddit redirected r/${subreddit} to a login page (${page.url()}). Anonymous access may be blocked ` +
@@ -214,7 +240,7 @@ export async function fetchSubredditPostsViaBrowser(
         noNewStreak = 0;
       }
 
-      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      await evaluateWithRetry(page, () => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
       await new Promise((resolve) => setTimeout(resolve, pageDelayMs));
     }
   } finally {
